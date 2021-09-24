@@ -38,15 +38,14 @@ public class LongLat {
 
         if (i == -999){
             nextMove = new LongLat(this.longitude, this.latitude);
-            return nextMove;
+        }else{
+            double longitude = this.longitude + (Math.cos(Math.toRadians(i)) * 0.00015);
+            double latitude =  this.latitude + (Math.sin(Math.toRadians(i)) * 0.00015);
+            System.out.println(longitude);
+            System.out.println(latitude);
+            nextMove = new LongLat(longitude, latitude);
+
         }
-
-        double longitude = this.longitude + (Math.cos(Math.toRadians(i)) * 0.00015);
-        double latitude =  this.latitude + (Math.sin(Math.toRadians(i)) * 0.00015);
-        System.out.println(longitude);
-        System.out.println(latitude);
-        nextMove = new LongLat(longitude, latitude);
-
         return nextMove;
     }
 }
