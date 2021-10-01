@@ -2,6 +2,11 @@ package uk.ac.ed.inf;
 
 import java.util.List;
 
+/**
+ * Class that represents a Restaurant Object
+ * Class has been encapsulated
+ */
+
 public class Restaurant {
     private String name;
     private String location;

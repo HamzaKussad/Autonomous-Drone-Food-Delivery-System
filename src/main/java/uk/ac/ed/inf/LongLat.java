@@ -58,16 +58,20 @@ public class LongLat {
     }
 
     /**
+     * The function calculates the longitude and latitude using
+     * trigonometry rules
+     * new longitude = (previous longitude + cos(angle)) * Move
+     * new latitude = (previous latitude + sin(angle)) * Move
+     * The function returns the next position after a "move"
+     * depending on the angle the drone is facing
      *
-     * @param i
-     * @return
+     * @param facingAngle the angle that the drone is currently facing
+     * @return next position after a "move"
      */
 
-    public LongLat nextPosition(int facingAngle) throws Exception {
+    public LongLat nextPosition(int facingAngle){
         LongLat nextMove;
-        if(facingAngle % 10 !=0){
-            throw new Exception("Angle must be multiple of 10");
-        }
+        validAngleCheck(facingAngle);
         if (facingAngle == Constants.HOVERING_DRONE_VALUE){
             nextMove = new LongLat(this.longitude, this.latitude);
         }else{
@@ -76,12 +80,19 @@ public class LongLat {
             System.out.println(longitude);
             System.out.println(latitude);
             nextMove = new LongLat(longitude, latitude);
-
         }
         return nextMove;
     }
 
+
+
     //Helper functions
+
+    /**
+     * A helper function to calculate the Pythagorean distance
+     * @param location distance to the location
+     * @return Pythagorean Distance
+     */
 
     private double getPythagoreanDist(LongLat location) {
         double latDist = this.latitude - location.latitude;
@@ -90,5 +101,23 @@ public class LongLat {
         double pythagoreanDist = Math.sqrt(distance);
         return pythagoreanDist;
     }
+
+    /**
+     * A helper function to check whether the input angle is
+     * a multiple of 10, otherwise throw an exception
+     * @param facingAngle angle of drone
+     */
+
+    private void validAngleCheck(int facingAngle) {
+        try{
+            if(facingAngle % 10 !=0){
+                throw new Exception("Angle must be multiple of 10");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
 
 }
