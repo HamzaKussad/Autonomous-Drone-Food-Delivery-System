@@ -58,7 +58,11 @@ public class LongLat {
     }
 
     /**
-     * The function calculates the longitude and latitude using
+     * The function first checks if the drone is hovering,
+     * if it is, the function will return the same position.
+     * The function then makes sure the angle is a multiple
+     * of 10, if it is not, it will throw an exception.
+     * The function then calculates the longitude and latitude using
      * trigonometry rules
      * new longitude = (previous longitude + cos(angle)) * Move
      * new latitude = (previous latitude + sin(angle)) * Move
@@ -70,21 +74,25 @@ public class LongLat {
      */
 
     public LongLat nextPosition(int facingAngle){
-        LongLat nextMove;
-        validAngleCheck(facingAngle);
+        LongLat nextMove = null;
         if (facingAngle == Constants.HOVERING_DRONE_VALUE){
             nextMove = new LongLat(this.longitude, this.latitude);
-        }else{
+            return nextMove;
+
+        }else if(facingAngle % 10 !=0){
+            try {
+                throw new Exception("Angle must be multiple of 10");
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        else{
             double longitude = this.longitude + (Math.cos(Math.toRadians(facingAngle)) * Constants.MOVE_DIST);
             double latitude =  this.latitude + (Math.sin(Math.toRadians(facingAngle)) * Constants.MOVE_DIST);
-            System.out.println(longitude);
-            System.out.println(latitude);
             nextMove = new LongLat(longitude, latitude);
         }
         return nextMove;
     }
-
-
 
     //Helper functions
 
@@ -101,23 +109,4 @@ public class LongLat {
         double pythagoreanDist = Math.sqrt(distance);
         return pythagoreanDist;
     }
-
-    /**
-     * A helper function to check whether the input angle is
-     * a multiple of 10, otherwise throw an exception
-     * @param facingAngle angle of drone
-     */
-
-    private void validAngleCheck(int facingAngle) {
-        try{
-            if(facingAngle % 10 !=0){
-                throw new Exception("Angle must be multiple of 10");
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-
-
 }
