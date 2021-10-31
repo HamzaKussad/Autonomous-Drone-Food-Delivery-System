@@ -43,7 +43,8 @@ public class ServerClient {
 
     }
 
-    public FeatureCollection loadGeoJSON(String endpoint) throws IOException, InterruptedException {
+    public FeatureCollection loadGeoJSON() throws IOException, InterruptedException {
+        String endpoint = "/buildings/no-fly-zones.geojson";
         HttpResponse<String> response = doGetRequest(this.name,this.port,endpoint);
         return FeatureCollection.fromJson(response.body());
     }

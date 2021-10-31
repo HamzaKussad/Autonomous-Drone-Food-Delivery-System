@@ -94,6 +94,14 @@ public class LongLat {
         return nextMove;
     }
 
+    public int getAngle(LongLat targetLocation){
+        double angleToTaregt =
+                Math.atan2(targetLocation.latitude-this.latitude,
+                        targetLocation.longitude-this.longitude);
+        int angleToMove = (10 * (int) Math.round(angleToTaregt / 10) + 360) % 360;
+        return angleToMove;
+    }
+
     //Helper functions
 
     /**
