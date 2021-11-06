@@ -51,9 +51,9 @@ public class DatabaseClient {
         return orderList;
 
     }
-    public HashMap getOrderItems(String orderNo){
+    private HashMap getOrderItems(String orderNo){
         final String orderDetailsQuery = "select * from orderDetails where orderNo=(?)";
-        HashMap<String , OrderDetails> orderDetail = new HashMap<>();
+        HashMap<String , OrderItems> orderDetail = new HashMap<>();
         try{
             connect();
 
@@ -67,7 +67,7 @@ public class DatabaseClient {
                 items.add(item);
             }
 
-            OrderDetails orderDetails = new OrderDetails();
+            OrderItems orderDetails = new OrderItems();
 
             orderDetails.orderNo = orderNo;
             orderDetails.items = items;
@@ -81,10 +81,12 @@ public class DatabaseClient {
         return orderDetail;
     }
 
-    public void fillOrderDetails(){
+    public HashMap orderDetails(){
         HashMap<String,Order> orderList = getOrders();
+        HashMap<String , OrderItems> orderDetail = new HashMap<>();
         for (String order: orderList.keySet()){
-            getOrderItems(order);
+              orderDetail= getOrderItems(order);
         }
+        return orderDetail;
     }
 }

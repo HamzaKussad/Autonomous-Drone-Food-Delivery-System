@@ -1,5 +1,6 @@
 package uk.ac.ed.inf;
 
+import java.beans.FeatureDescriptor;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.ConnectException;
@@ -16,6 +17,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Point;
+import org.mortbay.util.IO;
 
 public class ServerClient {
 
@@ -34,19 +36,32 @@ public class ServerClient {
     //function to read the w3w json
     //function to read geojson landmarks
     //function to read geojson noflyzones
-    public Point getPointFrom3Words(String word) throws IOException, InterruptedException {
-        String[] wordArr = word.split(".");
-        String endpoint = "/words/" + wordArr[0] + "/" + wordArr[1] + "/" + wordArr[2];
-        HttpResponse<String> response = doGetRequest(this.name,this.port,endpoint);
-        W3W details = new Gson().fromJson(response.body(),W3W.class);
-        return Point.fromLngLat(details.coordinates.lng,details.coordinates.lat);
+    public LongLat getLongLatFrom3Words(String word) {
+        W3W details = null;
+        try{
+            String[] wordArr = word.split(".");
+            String endpoint = "/words/" + wordArr[0] + "/" + wordArr[1] + "/" + wordArr[2];
+            HttpResponse<String> response = doGetRequest(this.name,this.port,endpoint);
+            details = new Gson().fromJson(response.body(),W3W.class);
+        }catch (IOException | InterruptedException e){
+            e.printStackTrace();
+        }
+        LongLat coords = new LongLat(details.coordinates.lng,details.coordinates.lat);
+        return coords;
 
     }
 
-    public FeatureCollection loadGeoJSON() throws IOException, InterruptedException {
-        String endpoint = "/buildings/no-fly-zones.geojson";
-        HttpResponse<String> response = doGetRequest(this.name,this.port,endpoint);
-        return FeatureCollection.fromJson(response.body());
+    public FeatureCollection loadNoFlyZone(){
+        FeatureCollection noFlyZone = null;
+        try{
+            String endpoint = "/buildings/no-fly-zones.geojson";
+            HttpResponse<String> response = doGetRequest(this.name,this.port,endpoint);
+            noFlyZone = FeatureCollection.fromJson(response.body());
+        }catch (IOException | InterruptedException e){
+            e.printStackTrace();
+        }
+
+        return noFlyZone;
     }
 
 
@@ -63,6 +78,17 @@ public class ServerClient {
             }
         }
         return menus;
+    }
+
+    public HashMap storeLocationOfMenuItem(){
+        HashMap<String,String> locations = new HashMap<>();
+        List<Restaurant> responseRestaurants = getMenus();
+        for (Restaurant restaurant: responseRestaurants){
+            for (Menu menu : restaurant.getMenu()){
+                locations.put(menu.getItem(), restaurant.getLocation());
+            }
+        }
+        return locations;
     }
 
     /**

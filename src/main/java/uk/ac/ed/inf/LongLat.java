@@ -1,5 +1,7 @@
 package uk.ac.ed.inf;
 
+import java.awt.geom.Line2D;
+
 /**
  * Class that represent a point on the map
  * using Latitude and Longitude
@@ -7,6 +9,7 @@ package uk.ac.ed.inf;
 public class LongLat {
     public double longitude;
     public double latitude;
+
 
     /**
      * Creates a LongLat instance
@@ -30,6 +33,18 @@ public class LongLat {
             return true;
         }
         return false;
+    }
+
+    public boolean isValidMove(LongLat nextMove){
+
+        var path = new Line2D.Double(this.longitude,this.latitude,nextMove.longitude,nextMove.latitude);
+        for (Line2D obstacle: NoFlyZone.obstacleLines){
+            if (path.intersectsLine(obstacle)){
+                return false;
+            }
+        }
+        return true;
+
     }
 
     /**
@@ -96,11 +111,13 @@ public class LongLat {
 
     public int getAngle(LongLat targetLocation){
         double angleToTaregt =
-                Math.atan2(targetLocation.latitude-this.latitude,
-                        targetLocation.longitude-this.longitude);
+                Math.toDegrees(Math.atan2(targetLocation.latitude-this.latitude,
+                        targetLocation.longitude-this.longitude));
         int angleToMove = (10 * (int) Math.round(angleToTaregt / 10) + 360) % 360;
+
         return angleToMove;
     }
+
 
     //Helper functions
 
