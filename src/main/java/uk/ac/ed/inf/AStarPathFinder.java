@@ -10,6 +10,7 @@ import java.util.PriorityQueue;
 
 public class AStarPathFinder {
     NoFlyZone noFlyZone = new NoFlyZone();
+
     public ArrayList<LongLat> findRoute(LongLat startLocation, LongLat targetLocation){
 
         PriorityQueue<Path> openList = new PriorityQueue<>();
@@ -29,16 +30,16 @@ public class AStarPathFinder {
             int movesToTargetLeft = (int) (path.getDistToTarget() / Constants.MOVE_DIST);
 
             nextMoves = getSurroundingMoves(path);
-            if(movesToTargetLeft > 5){
-                Collections.sort(nextMoves);
-                int n = (18/movesToTargetLeft) +1 ;
-                var result = new ArrayList<Path>();
-                for (int i=0; i< n; i++){
-                    result.add(nextMoves.get(i));
-                }
-                nextMoves = result;
-
-            }
+//            if(movesToTargetLeft > 20){
+//                Collections.sort(nextMoves);
+//                int n = (28/movesToTargetLeft) +1 ;
+//                var result = new ArrayList<Path>();
+//                for (int i=0; i< n; i++){
+//                    result.add(nextMoves.get(i));
+//                }
+//                nextMoves = result;
+//
+//            }
             for(Path move: nextMoves){
                 openList.add(move);
             }
@@ -50,13 +51,13 @@ public class AStarPathFinder {
 
     private ArrayList<Path> getSurroundingMoves(Path path) {
         ArrayList<Path> nextMoves = new ArrayList<>();
-        for(int angle=0; angle< 360; angle+=10){
+        for(int angle=0; angle< 360; angle+=30){
             LongLat point = path.next.nextPosition(angle);
             Line2D possibleMove = new Line2D.Double(path.next.longitude,path.next.latitude,point.longitude,point.latitude);
             if(!noFlyZone.intersect(possibleMove)&& point.isConfined()){
                 ArrayList<LongLat> newPath = (ArrayList<LongLat>) path.getMoves().clone();
                 newPath.add(point);
-                nextMoves.add(new Path(path.target,newPath));
+                nextMoves.add(new Path(path.target, newPath));
             }
 
         }

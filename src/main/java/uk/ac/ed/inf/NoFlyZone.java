@@ -31,8 +31,8 @@ public class NoFlyZone {
 
         }
 
-        obstacleLines.add(new Line2D.Double(-3.187975063920021,55.94476199783985,-3.188435733318329,55.945087182795454));
-        obstacleLines.add(new Line2D.Double(-3.188435733318329, 55.945087182795454,-3.1893758475780487, 55.94553778099201));
+//        obstacleLines.add(new Line2D.Double(-3.187975063920021,55.94476199783985,-3.188435733318329,55.945087182795454));
+//        obstacleLines.add(new Line2D.Double(-3.188435733318329, 55.945087182795454,-3.1893758475780487, 55.94553778099201));
         System.out.println(obstacleLines.size());
 
     }

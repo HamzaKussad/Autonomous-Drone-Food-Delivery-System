@@ -31,13 +31,13 @@ public class Path implements Comparable<Path> {
         if(moves.size()>0){
             double realDist = moves.size() * Constants.MOVE_DIST;
             double manhattanDist = getDistToTarget();
-            cost = realDist + manhattanDist;
+            cost = realDist + manhattanDist ;
         }
         return cost;
     }
 
     public double getDistToTarget(){
-        return this.next.distanceTo(this.target);
+        return this.next.heuristicDist(this.target) + this.next.distanceTo(this.target);
     }
 
 }

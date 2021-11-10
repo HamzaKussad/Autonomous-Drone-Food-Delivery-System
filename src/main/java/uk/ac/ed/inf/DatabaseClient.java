@@ -8,6 +8,8 @@ public class DatabaseClient {
 
     Connection conn;
     String url = "jdbc:derby://localhost:1527/derbyDB";
+    private static HashMap<String,Order> orders = new HashMap<>();
+    private static HashMap<String,OrderItems> orderItems = new HashMap<>();
 
     public void connect(){
         try {
@@ -27,13 +29,22 @@ public class DatabaseClient {
         }
     }
 
-    public HashMap getOrders(){
-        HashMap<String,Order> orderList = new HashMap<>();
-        final String ordersQuery =  "select * from orders";
+    public static HashMap<String,Order> getOrders(){
+        return orders;
+    }
+    public static HashMap<String,OrderItems> getOrderItems(){
+        return orderItems;
+    }
+
+    public HashMap<String,Order> storeOrders(Date deliveryDate){
+
+
+        final String ordersQuery =  "select * from orders where deliveryDate = (?)";
         try{
 
             connect();
             PreparedStatement psOrderQuery = conn.prepareStatement(ordersQuery);
+            psOrderQuery.setDate(1,deliveryDate);
             ResultSet rs = psOrderQuery.executeQuery();
             while(rs.next()){
                 Order order = new Order();
@@ -42,18 +53,21 @@ public class DatabaseClient {
                 order.customer = rs.getString("customer");
                 order.deliverTo = rs.getString("deliverTo");
 
-                orderList.put(order.orderNo, order);
+                orders.put(order.orderNo, order);
             }
         }catch (SQLException e){
             e.printStackTrace();
         }
         disconnect();
-        return orderList;
+
+        System.out.println(orders);
+
+        return orders;
 
     }
-    private HashMap getOrderItems(String orderNo){
+    private OrderItems getOrderItems(String orderNo){
         final String orderDetailsQuery = "select * from orderDetails where orderNo=(?)";
-        HashMap<String , OrderItems> orderDetail = new HashMap<>();
+        OrderItems orderDetails = new OrderItems();
         try{
             connect();
 
@@ -67,26 +81,26 @@ public class DatabaseClient {
                 items.add(item);
             }
 
-            OrderItems orderDetails = new OrderItems();
+
 
             orderDetails.orderNo = orderNo;
             orderDetails.items = items;
 
-            orderDetail.put(orderNo,orderDetails);
 
         }catch (SQLException e){
             e.printStackTrace();
         }
         disconnect();
-        return orderDetail;
+        return orderDetails;
     }
 
-    public HashMap orderDetails(){
-        HashMap<String,Order> orderList = getOrders();
-        HashMap<String , OrderItems> orderDetail = new HashMap<>();
-        for (String order: orderList.keySet()){
-              orderDetail= getOrderItems(order);
+    public HashMap storeOrderDetails(){
+
+        System.out.println(orders);
+        for (String order: orders.keySet()){
+            orderItems.put(order , getOrderItems(order));
         }
-        return orderDetail;
+
+        return orderItems;
     }
 }

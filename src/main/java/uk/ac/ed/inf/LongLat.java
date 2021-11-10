@@ -58,6 +58,10 @@ public class LongLat {
         return getPythagoreanDist(location);
     }
 
+    public double heuristicDist(LongLat location){
+        return Math.abs(this.latitude - location.latitude) + Math.abs(this.longitude - location.longitude);
+    }
+
     /**
      * Checks if a location is (close to) within a move from the
      * current location(point)

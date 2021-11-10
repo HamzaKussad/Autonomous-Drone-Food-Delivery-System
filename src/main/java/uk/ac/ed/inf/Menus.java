@@ -43,7 +43,7 @@ public class Menus {
      * @return
      */
 
-    public int getDeliveryCost(String... strings) {
+    public int getDeliveryCost(ArrayList<String> strings) {
         HashMap<String, Menu> menus = client.storeItemsInHashmap();
         int price = 0;
         for(String restaurant: strings){
@@ -51,8 +51,5 @@ public class Menus {
         }
         return price + Constants.DELIVERY_COST;
     }
-
-
-
 
 }

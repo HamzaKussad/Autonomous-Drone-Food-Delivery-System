@@ -30,7 +30,7 @@ public class ServerClient {
 
     }
 
-    private static final HttpClient client = HttpClient.newHttpClient();
+    public static final HttpClient client = HttpClient.newHttpClient();
 
     //function to read the menus.json
     //function to read the w3w json
@@ -39,8 +39,9 @@ public class ServerClient {
     public LongLat getLongLatFrom3Words(String word) {
         W3W details = null;
         try{
-            String[] wordArr = word.split(".");
-            String endpoint = "/words/" + wordArr[0] + "/" + wordArr[1] + "/" + wordArr[2];
+
+            String[] wordArr = word.split("\\.");
+            String endpoint = "/words/" + wordArr[0] + "/" + wordArr[1] + "/" + wordArr[2] + "/details.json";
             HttpResponse<String> response = doGetRequest(this.name,this.port,endpoint);
             details = new Gson().fromJson(response.body(),W3W.class);
         }catch (IOException | InterruptedException e){
@@ -80,15 +81,17 @@ public class ServerClient {
         return menus;
     }
 
-    public HashMap storeLocationOfMenuItem(){
-        HashMap<String,String> locations = new HashMap<>();
+    public LongLat getLocationOfMenuItem(String item){
         List<Restaurant> responseRestaurants = getMenus();
         for (Restaurant restaurant: responseRestaurants){
             for (Menu menu : restaurant.getMenu()){
-                locations.put(menu.getItem(), restaurant.getLocation());
+                if (menu.getItem().equals(item)){
+                    return getLongLatFrom3Words(restaurant.getLocation());
+                }
+
             }
         }
-        return locations;
+        return null;
     }
 
     /**
@@ -96,7 +99,7 @@ public class ServerClient {
      * after getting the http response
      * @return
      */
-    private List<Restaurant> getMenus(){
+    public List<Restaurant> getMenus(){
         List<Restaurant> responseRestaurants = new ArrayList<>() {};
         String endpoint = "/menus/menus.json";
         try{
@@ -121,9 +124,15 @@ public class ServerClient {
      * @throws InterruptedException
      */
 
-    private HttpResponse<String> doGetRequest(String name, String port, String endpoint) throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://" + name + ":" + port+ endpoint )).build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    public static HttpResponse<String> doGetRequest(String name, String port, String endpoint) throws IOException, InterruptedException {
+        HttpResponse<String> response = null;
+        try{
+            HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://" + name + ":" + port+ endpoint )).build();
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        }catch (IOException | InterruptedException e){
+            e.printStackTrace();
+        }
+
         return response;
     }
 }
