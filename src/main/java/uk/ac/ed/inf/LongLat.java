@@ -58,8 +58,11 @@ public class LongLat {
         return getPythagoreanDist(location);
     }
 
-    public double heuristicDist(LongLat location){
-        return Math.abs(this.latitude - location.latitude) + Math.abs(this.longitude - location.longitude);
+    public double manhattanDist(LongLat location){
+        return 4*Math.abs(this.latitude - location.latitude) + Math.abs(this.longitude - location.longitude);
+    }
+    public double chebyshevDist(LongLat location){
+        return Math.min(Math.abs(this.latitude-location.latitude),Math.abs(this.longitude-location.longitude));
     }
 
     /**
@@ -120,6 +123,10 @@ public class LongLat {
         int angleToMove = (10 * (int) Math.round(angleToTaregt / 10) + 360) % 360;
 
         return angleToMove;
+    }
+
+    public AStarNode toNode(){
+        return new AStarNode(this.longitude,this.latitude);
     }
 
 

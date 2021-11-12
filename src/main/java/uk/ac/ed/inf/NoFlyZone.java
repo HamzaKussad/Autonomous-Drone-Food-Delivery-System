@@ -1,9 +1,11 @@
 package uk.ac.ed.inf;
 
+import com.google.gson.Gson;
 import com.mapbox.geojson.*;
 
 import java.awt.geom.Line2D;
 import java.io.IOException;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,13 +13,17 @@ import com.mapbox.geojson.Polygon;
 import java.awt.*;
 
 
-public class NoFlyZone {
-    ServerClient client = new ServerClient("localhost","9898");
+public class NoFlyZone extends ServerClient {
+
 
     public static ArrayList<Line2D> obstacleLines = new ArrayList<>();
 
-    public void noFlyZone() {
-        FeatureCollection noFlyZone =  client.loadNoFlyZone();
+    public NoFlyZone(String name, String port) {
+        super(name, port);
+
+    }
+    public void getNoFlyZone(){
+        FeatureCollection noFlyZone = loadNoFlyZone();
 
         for(int i = 0; i<noFlyZone.features().size(); i++){
             var shape = (Polygon) noFlyZone.features().get(i).geometry();
@@ -30,13 +36,12 @@ public class NoFlyZone {
             }
 
         }
-
 //        obstacleLines.add(new Line2D.Double(-3.187975063920021,55.94476199783985,-3.188435733318329,55.945087182795454));
 //        obstacleLines.add(new Line2D.Double(-3.188435733318329, 55.945087182795454,-3.1893758475780487, 55.94553778099201));
         System.out.println(obstacleLines.size());
-
     }
-    public boolean intersect(Line2D move){
+
+    public static boolean intersect(Line2D move){
         for (Line2D obstacle: obstacleLines){
             if (move.intersectsLine(obstacle)){
                 return true;
@@ -44,5 +49,22 @@ public class NoFlyZone {
         }
         return false;
     }
+
+
+
+   private FeatureCollection loadNoFlyZone(){
+        FeatureCollection noFlyZone = null;
+        try{
+            String endpoint = "/buildings/no-fly-zones.geojson";
+            HttpResponse<String> response = doGetRequest(this.name,this.port,endpoint);
+            noFlyZone = FeatureCollection.fromJson(response.body());
+        }catch (IOException | InterruptedException e){
+            e.printStackTrace();
+        }
+
+        return noFlyZone;
+    }
+
+
 
 }

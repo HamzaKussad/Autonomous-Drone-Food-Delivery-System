@@ -6,8 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 
 public class OrderPlanner {
-    ServerClient client = new ServerClient("localhost", "9898");
-    Menus menu = new Menus("localhost", "9898");
+
+    Menus menus;
+    WordsW3W words;
 
 
     //fix all
@@ -31,38 +32,28 @@ public class OrderPlanner {
 //
 //    }
 
-
     public double getOrderHeuristic(String currentOrder, String nextOrder){
-        HashMap<String,Order> orderList = DatabaseClient.getOrders();
-        HashMap<String,OrderItems> orderItems = DatabaseClient.getOrderItems();
+        HashMap<String,Order> orderList = OrdersIO.getOrders();
+        HashMap<String,OrderItems> orderItems = OrdersIO.getOrderItems();
         orderList.get(currentOrder);
         double dist = Double.POSITIVE_INFINITY;
         for (String item : orderItems.get(nextOrder).items){
-            LongLat restaurantLocation = client.getLocationOfMenuItem(item);
-            LongLat pickupLocation = client.getLongLatFrom3Words(orderList.get(currentOrder).deliverTo);
+            LongLat restaurantLocation = words.getLongLatFrom3Words(menus.getLocationOfMenuItem(item));
+            LongLat pickupLocation = words.getLongLatFrom3Words(orderList.get(currentOrder).deliverTo);
             //do as in Drone.java
             if(pickupLocation.distanceTo(restaurantLocation) < dist){
                 dist = pickupLocation.distanceTo(restaurantLocation);
             }
 
         }
-        int price = menu.getDeliveryCost(orderItems.get(nextOrder).items);
+        int price = menus.getDeliveryCost(orderItems.get(nextOrder).items);
 
-        return dist * 1/price;
+        return dist * 1/(3*price);
 
     }
 
-//    public ArrayList getItemsLocations(String orderNumber){
-//
-//    }
 
-    public double getJourneyCost(String[] orders){
-        double totalCost = 0;
-        for(int i=0; i< orders.length -1; i++){
-            totalCost += getOrderHeuristic(orders[i], orders[i+1]);
-        }
-        return totalCost;
-    }
+
 
     public double getJourneyDistance(LongLat[] journey){
         double totalDist = 0;

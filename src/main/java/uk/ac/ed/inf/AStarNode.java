@@ -1,8 +1,8 @@
 package uk.ac.ed.inf;
 
 public class AStarNode extends LongLat implements Comparable<AStarNode>{
-    public double f = Double.MIN_VALUE;
-    public double g = Double.MIN_VALUE;
+    public double f = Double.MAX_VALUE;
+    public double g = Double.MAX_VALUE;
     public int numOfMoves = 0;
     public AStarNode parent;
 
@@ -19,8 +19,6 @@ public class AStarNode extends LongLat implements Comparable<AStarNode>{
     public LongLat toLongLat(){
         return new LongLat(this.longitude,this.latitude);
     }
-
-
 
 
     @Override

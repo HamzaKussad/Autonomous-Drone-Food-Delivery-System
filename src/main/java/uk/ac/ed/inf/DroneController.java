@@ -19,15 +19,12 @@ public class DroneController {
 
     LongLat current;
     LongLat next;
-
+    NoFlyZone noFlyZone;
 
     public LineString getRoute(List<LongLat> locations){
         ArrayList<Move> moves = new ArrayList<>();
         List<Point> points = new ArrayList<>();
         int movesLeft = 1500;
-
-        NoFlyZone noFlyZone = new NoFlyZone();
-        noFlyZone.noFlyZone();
 
 
         current = locations.get(0);

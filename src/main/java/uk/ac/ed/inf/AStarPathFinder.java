@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.PriorityQueue;
 
 public class AStarPathFinder {
-    NoFlyZone noFlyZone = new NoFlyZone();
+    NoFlyZone noFlyZone;
 
     public ArrayList<LongLat> findRoute(LongLat startLocation, LongLat targetLocation){
 

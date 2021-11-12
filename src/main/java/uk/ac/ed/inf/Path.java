@@ -37,7 +37,7 @@ public class Path implements Comparable<Path> {
     }
 
     public double getDistToTarget(){
-        return this.next.heuristicDist(this.target) + this.next.distanceTo(this.target);
+        return this.next.manhattanDist(this.target) + this.next.distanceTo(this.target);
     }
 
 }

@@ -2,7 +2,6 @@ package uk.ac.ed.inf;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.net.URI;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -12,17 +11,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.mapbox.geojson.Point;
-
 /**
  * Class that represents all Menus
  */
 
-public class Menus {
-
-    public String name;
-    public String port;
-
+public class Menus extends ServerClient {
 
     /**
      * Creates a Menus instant
@@ -30,11 +23,63 @@ public class Menus {
      * @param port
      */
     public Menus(String name, String port) {
-        this.name = name;
-        this.port = port;
+        super(name,port);
+        String endpoint = "/menus/menus.json";
+        try{
+            HttpResponse<String> response = doGetRequest(this.name,this.port,endpoint);
+            Type listType = new TypeToken<List<Restaurant>>() {} .getType();
+            responseRestaurants = new Gson().fromJson(response.body(), listType);
+
+        }catch (IOException | InterruptedException e){
+            e.printStackTrace();
+        }
+
 
     }
-    ServerClient client = new ServerClient("localhost","9898");
+
+    private static HashMap<String, Menu> menus = new HashMap<>();
+    private static List<Restaurant> responseRestaurants = new ArrayList<>() {};
+
+    public static HashMap<String,Menu> getMenus(){
+        return menus;
+    }
+
+    /**
+     * Helper function to fill up the Hashmap "menu"
+     * from all the menus from all different restaurants
+     */
+    public void storeItems() {
+        getResponseRestaurants();
+
+        for (Restaurant restaurant: responseRestaurants){
+            for (Menu menu : restaurant.getMenu()){
+                menus.put(menu.getItem(), menu);
+            }
+        }
+    }
+
+    public static String getLocationOfMenuItem(String item){
+        for (Restaurant restaurant: responseRestaurants){
+            for (Menu menu : restaurant.getMenu()){
+                if (menu.getItem().equals(item)){
+                    return restaurant.getLocation();
+                }
+
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Helper function to parse json string into java object
+     * after getting the http response
+     * @return
+     */
+    public void getResponseRestaurants(){
+
+
+
+    }
 
     /**
      * Function that gets the cost of each item
@@ -43,13 +88,15 @@ public class Menus {
      * @return
      */
 
-    public int getDeliveryCost(ArrayList<String> strings) {
-        HashMap<String, Menu> menus = client.storeItemsInHashmap();
+    public static int getDeliveryCost(ArrayList<String> strings) {
+
         int price = 0;
         for(String restaurant: strings){
-            price += menus.get(restaurant).getPence();
+            price += getMenus().get(restaurant).getPence();
         }
         return price + Constants.DELIVERY_COST;
     }
+
+
 
 }
