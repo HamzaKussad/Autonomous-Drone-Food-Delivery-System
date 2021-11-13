@@ -59,11 +59,16 @@ public class LongLat {
     }
 
     public double manhattanDist(LongLat location){
-        return 4*Math.abs(this.latitude - location.latitude) + Math.abs(this.longitude - location.longitude);
+        var dx = Math.abs(this.latitude - location.latitude);
+        var dy = Math.abs(this.longitude - location.longitude);
+        return dx + dy;
     }
     public double chebyshevDist(LongLat location){
-        return Math.min(Math.abs(this.latitude-location.latitude),Math.abs(this.longitude-location.longitude));
+        var dx = Math.abs(this.latitude - location.latitude);
+        var dy = Math.abs(this.longitude - location.longitude);
+        return (dx+dy) + 1.85*Math.max(dy,dx);
     }
+
 
     /**
      * Checks if a location is (close to) within a move from the

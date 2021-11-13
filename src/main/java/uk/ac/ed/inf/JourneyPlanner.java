@@ -10,13 +10,13 @@ public class JourneyPlanner {
     Menus menus;
     OrderPlanner orderPlanner = new OrderPlanner();
 
-    public String[] planJourney(String[] orders) {
+    public ArrayList<String> planJourney(String[] orders) {
 
         String[] newJourney = orders.clone();
         OrderPlanner planner = new OrderPlanner();
         System.out.println("Starting Dist is: " + getJourneyCost(orders));
         int iterations = 0;
-        while (iterations <0) {
+        while (iterations <1) {
             double currentBestDist = getJourneyCost(orders);
             for (int i = 0; i < orders.length - 1; i++) {
                 for (int j = i + 1; j < orders.length; j++) {
@@ -36,7 +36,7 @@ public class JourneyPlanner {
             iterations++;
         }
         System.out.println(orders);
-        return orders;
+        return new ArrayList<>(Arrays.asList(orders));
     }
 
     private void TwoOptSwap(int i, int j, String[] journey, String[] newJourney) {
@@ -56,7 +56,7 @@ public class JourneyPlanner {
 
 
 
-    public String[] getOrdersExp(String[] orders){
+    public ArrayList getOrdersExp(String[] orders){
 
         HashMap<String,Integer> orderByCost = new HashMap<>();
         HashMap<String,OrderItems> orderItems = OrdersIO.getOrderItems();
@@ -79,7 +79,7 @@ public class JourneyPlanner {
             output.add(order);
         }
         String[] outputOrder = output.toArray(new String[output.size()]);
-        return outputOrder;
+        return output;
 
     }
 

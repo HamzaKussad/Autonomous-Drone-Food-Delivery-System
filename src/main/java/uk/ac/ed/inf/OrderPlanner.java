@@ -8,7 +8,7 @@ import java.util.List;
 public class OrderPlanner {
 
     Menus menus;
-    WordsW3W words;
+    WordsW3W words = new WordsW3W("localhost", "9898");
 
 
     //fix all
@@ -38,7 +38,7 @@ public class OrderPlanner {
         orderList.get(currentOrder);
         double dist = Double.POSITIVE_INFINITY;
         for (String item : orderItems.get(nextOrder).items){
-            LongLat restaurantLocation = words.getLongLatFrom3Words(menus.getLocationOfMenuItem(item));
+            LongLat restaurantLocation = words.getLongLatFrom3Words(Menus.getLocationOfMenuItem(item));
             LongLat pickupLocation = words.getLongLatFrom3Words(orderList.get(currentOrder).deliverTo);
             //do as in Drone.java
             if(pickupLocation.distanceTo(restaurantLocation) < dist){
