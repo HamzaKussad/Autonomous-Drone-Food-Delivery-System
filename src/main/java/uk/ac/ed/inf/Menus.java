@@ -36,11 +36,10 @@ public class Menus extends ServerClient {
 
     }
 
-
     private static HashMap<String, Menu> menus = new HashMap<>();
     private static List<Restaurant> responseRestaurants = new ArrayList<>() {};
 
-    public static HashMap<String,Menu> getMenus(){
+    private static HashMap<String,Menu> getMenus(){
         return menus;
     }
 
@@ -67,7 +66,7 @@ public class Menus extends ServerClient {
      */
     public void storeItems() {
         for (Restaurant restaurant: responseRestaurants){
-            restaurant.test = getLongLatFrom3Words(restaurant.getLocation());
+            restaurant.longLatLocation = getLongLatFrom3Words(restaurant.getLocation());
             for (Menu menu : restaurant.getMenu()){
                 menus.put(menu.getItem(), menu);
             }
@@ -79,7 +78,7 @@ public class Menus extends ServerClient {
         for (Restaurant restaurant: responseRestaurants){
             for (Menu menu : restaurant.getMenu()){
                 if (menu.getItem().equals(item)){
-                    return restaurant.test;
+                    return restaurant.longLatLocation;
                 }
 
             }

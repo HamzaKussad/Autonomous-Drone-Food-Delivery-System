@@ -30,12 +30,7 @@ public class ServerClient {
 
     }
 
-    public static final HttpClient client = HttpClient.newHttpClient();
-
-    //function to read the menus.json
-    //function to read the w3w json
-    //function to read geojson landmarks
-    //function to read geojson noflyzones
+    private static final HttpClient client = HttpClient.newHttpClient();
 
 
     /**

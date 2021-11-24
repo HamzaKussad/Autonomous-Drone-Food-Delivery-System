@@ -99,11 +99,11 @@ public class Drone {
         double allOrders = 0;
 
         for (String order: journey){
-            allOrders+= Menus.getDeliveryCost(orderItems.get(order).items);
+            allOrders+= Menus.getDeliveryCost(orderItems.get(order).getItems());
         }
         getPlan();
         for (String order: journey){
-            actualDelivered+= Menus.getDeliveryCost(orderItems.get(order).items);
+            actualDelivered+= Menus.getDeliveryCost(orderItems.get(order).getItems());
         }
         return (actualDelivered/allOrders)*100;
     }

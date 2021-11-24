@@ -10,13 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mapbox.geojson.Polygon;
-import java.awt.*;
-
 
 public class NoFlyZone extends ServerClient {
 
 
-    public static ArrayList<Line2D> obstacleLines = new ArrayList<>();
+    private static ArrayList<Line2D> obstacleLines = new ArrayList<>();
 
     public NoFlyZone(String name, String port) {
         super(name, port);

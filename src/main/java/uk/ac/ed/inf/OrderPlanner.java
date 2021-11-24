@@ -19,7 +19,7 @@ public class OrderPlanner {
 
         HashMap<String,LongLat> itemShopsNoDuplicate = new HashMap<>();
 
-        for(String item : orderItems.get(orders.get(0)).items ){
+        for(String item : orderItems.get(orders.get(0)).getItems() ){
             String w3wRestaurantLocation = Menus.getW3WOfMenuItem(item);
             LongLat restaurantLocation = Menus.getLocationOfMenuItem(item);
             itemShopsNoDuplicate.put(w3wRestaurantLocation, restaurantLocation);
@@ -33,11 +33,11 @@ public class OrderPlanner {
 
         for(int i =0; i< orders.size()-1;i++){
 
-            LongLat dropOffLocation = (orders1.get(orders.get(i)).deliverTo);
+            LongLat dropOffLocation = (orders1.get(orders.get(i)).getDeliverTo());
             coords.add(dropOffLocation);
 
             itemShopsNoDuplicate = new HashMap<>();
-            for(String item :orderItems.get(orders.get(i+1)).items ){
+            for(String item :orderItems.get(orders.get(i+1)).getItems() ){
                 String w3wRestaurantLocation = Menus.getW3WOfMenuItem(item);
                 LongLat restaurantLocation = Menus.getLocationOfMenuItem(item);
                 itemShopsNoDuplicate.put(w3wRestaurantLocation, restaurantLocation);
@@ -50,7 +50,7 @@ public class OrderPlanner {
             }
 
         }
-        LongLat lastOrderDropOff = (orders1.get(orders.get(orders.size()-1)).deliverTo);
+        LongLat lastOrderDropOff = (orders1.get(orders.get(orders.size()-1)).getDeliverTo());
 
         coords.add(lastOrderDropOff);
         coords.add(appletone);
@@ -58,32 +58,31 @@ public class OrderPlanner {
 
     }
 
-
     public double getOrderHeuristic(String currentOrder, String nextOrder){
         HashMap<String,Order> orderList = OrdersIO.getOrders();
         HashMap<String,OrderItems> orderItems = OrdersIO.getOrderItems();
         orderList.get(currentOrder);
 
         HashMap<String,LongLat> itemShopsNoDuplicate = new HashMap<>();
-        for(String item :orderItems.get(nextOrder).items ){
+        for(String item :orderItems.get(nextOrder).getItems() ){
             String w3wRestautantLocation = Menus.getW3WOfMenuItem(item);
             LongLat restaurantLocation = Menus.getLocationOfMenuItem(item);
             itemShopsNoDuplicate.put(w3wRestautantLocation, restaurantLocation);
         }
 
-        ArrayList<LongLat> itemShops =  sortRestaurantPickups(itemShopsNoDuplicate, orderList.get(currentOrder).deliverTo);
+        ArrayList<LongLat> itemShops =  sortRestaurantPickups(itemShopsNoDuplicate, orderList.get(currentOrder).getDeliverTo());
 
         double totalDist = 0.0;
 
-        totalDist += orderList.get(currentOrder).deliverTo.distanceTo(itemShops.get(0));
+        totalDist += orderList.get(currentOrder).getDeliverTo().distanceTo(itemShops.get(0));
 
         for(int i=0; i< itemShops.size()-1;i++){
             totalDist+= itemShops.get(i).distanceTo(itemShops.get(i+1));
         }
 
-        totalDist+= itemShops.get(itemShops.size()-1).distanceTo(orderList.get(nextOrder).deliverTo);
+        totalDist+= itemShops.get(itemShops.size()-1).distanceTo(orderList.get(nextOrder).getDeliverTo());
 
-        int price =  Menus.getDeliveryCost(orderItems.get(nextOrder).items);
+        int price =  Menus.getDeliveryCost(orderItems.get(nextOrder).getItems());
 
         return totalDist/price;
 
@@ -97,11 +96,9 @@ public class OrderPlanner {
             if(dropOffLocation.distanceTo(itemShopsNoDuplicate.get(restaurantLocation)) < dist){
                 dist = dropOffLocation.distanceTo(itemShopsNoDuplicate.get(restaurantLocation));
                 itemShops.add(0,itemShopsNoDuplicate.get(restaurantLocation));
-//                System.out.println("closest:" + resLocation.longitude + " " + resLocation.latitude);
             }else{
                 itemShops.add(itemShopsNoDuplicate.get(restaurantLocation));
             }
-            // System.out.println(resLocation.longitude + " " + resLocation.latitude);
         }
 
         return itemShops;

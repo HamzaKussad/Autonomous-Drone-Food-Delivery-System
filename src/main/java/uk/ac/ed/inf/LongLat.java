@@ -34,18 +34,7 @@ public class LongLat {
         }
         return false;
     }
-
-    public boolean isValidMove(LongLat nextMove){
-
-        var path = new Line2D.Double(this.longitude,this.latitude,nextMove.longitude,nextMove.latitude);
-        for (Line2D obstacle: NoFlyZone.obstacleLines){
-            if (path.intersectsLine(obstacle)){
-                return false;
-            }
-        }
-        return true;
-
-    }
+    
 
     /**
      * gets the Pythagorean distance between the point

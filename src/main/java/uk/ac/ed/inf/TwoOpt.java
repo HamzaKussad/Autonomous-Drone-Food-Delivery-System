@@ -52,7 +52,7 @@ public class TwoOpt implements JourneyPlanner {
     }
 
 
-    public double getJourneyCost(String[] orders){
+    private double getJourneyCost(String[] orders){
         double totalCost = 0;
         for(int i=0; i< orders.length -1; i++){
             totalCost += orderPlanner.getOrderHeuristic(orders[i], orders[i+1]);

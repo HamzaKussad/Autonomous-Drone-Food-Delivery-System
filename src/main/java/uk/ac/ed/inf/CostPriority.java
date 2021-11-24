@@ -10,7 +10,7 @@ public class CostPriority implements JourneyPlanner{
         HashMap<String,Order> orderList = OrdersIO.getOrders();
         ArrayList<String> output = new ArrayList<>();
         for(String order:orders){
-            orderByCost.put(orderList.get(order).orderNo, Menus.getDeliveryCost(orderItems.get(order).items));
+            orderByCost.put(orderList.get(order).getOrderNo(), Menus.getDeliveryCost(orderItems.get(order).getItems()));
         }
         LinkedHashMap<String, Integer> reverseSortedMap = new LinkedHashMap<>();
 

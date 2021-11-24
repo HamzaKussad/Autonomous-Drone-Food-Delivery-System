@@ -12,7 +12,7 @@ public class Restaurant {
     private String location;
     private List<Menu> menu;
 
-    public LongLat test;
+    public LongLat longLatLocation;
 
     public String getName(){
         return this.name;

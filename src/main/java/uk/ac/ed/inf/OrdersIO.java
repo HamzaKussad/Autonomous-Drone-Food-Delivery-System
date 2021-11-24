@@ -59,12 +59,12 @@ public class OrdersIO {
             ResultSet rs = psOrderQuery.executeQuery();
             while(rs.next()){
                 Order order = new Order();
-                order.orderNo = rs.getString("orderNo");
-                order.deliveryDate = rs.getDate("deliveryDate");
-                order.customer = rs.getString("customer");
-                order.deliverTo = w3wServer.getLongLatFrom3Words( rs.getString("deliverTo"));
+                order.setOrderNo(rs.getString("orderNo"));
+                order.setDeliveryDate(rs.getDate("deliveryDate"));
+                order.setCustomer(rs.getString("customer"));
+                order.setDeliverTo(w3wServer.getLongLatFrom3Words( rs.getString("deliverTo")));
 
-                orders.put(order.orderNo, order);
+                orders.put(order.getOrderNo(), order);
             }
         }catch (SQLException e){
             e.printStackTrace();
@@ -92,8 +92,8 @@ public class OrdersIO {
                 items.add(item);
             }
 
-            orderDetails.orderNo = orderNo;
-            orderDetails.items = items;
+            orderDetails.setOrderNo(orderNo);
+            orderDetails.setItems(items);
 
 
         }catch (SQLException e){
