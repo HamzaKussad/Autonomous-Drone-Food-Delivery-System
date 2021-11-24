@@ -1,10 +1,10 @@
 package uk.ac.ed.inf;
 
-public class AStarNode extends LongLat implements Comparable<AStarNode>{
+public class Node extends LongLat implements Comparable<Node>{
     public double f = Double.MAX_VALUE;
     public double g = Double.MAX_VALUE;
     public int numOfMoves = 0;
-    public AStarNode parent;
+    public Node parent;
 
     /**
      * Creates a LongLat instance
@@ -12,7 +12,7 @@ public class AStarNode extends LongLat implements Comparable<AStarNode>{
      * @param longitude longitude
      * @param latitude  latitude
      */
-    public AStarNode(double longitude, double latitude) {
+    public Node(double longitude, double latitude) {
         super(longitude, latitude);
     }
 
@@ -22,13 +22,13 @@ public class AStarNode extends LongLat implements Comparable<AStarNode>{
 
 
     @Override
-    public int compareTo(AStarNode o) {
+    public int compareTo(Node o) {
         return Double.compare(this.f, o.f);
     }
 
     @Override
-    public AStarNode nextPosition(int angle){
+    public Node nextPosition(int angle){
         LongLat coord = super.nextPosition(angle);
-        return new AStarNode(coord.longitude,coord.latitude);
+        return new Node(coord.longitude,coord.latitude);
     }
 }

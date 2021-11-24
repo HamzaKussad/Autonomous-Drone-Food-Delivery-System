@@ -130,8 +130,8 @@ public class LongLat {
         return angleToMove;
     }
 
-    public AStarNode toNode(){
-        return new AStarNode(this.longitude,this.latitude);
+    public Node toNode(){
+        return new Node(this.longitude,this.latitude);
     }
 
 

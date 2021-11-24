@@ -12,6 +12,8 @@ public class Restaurant {
     private String location;
     private List<Menu> menu;
 
+    public LongLat test;
+
     public String getName(){
         return this.name;
     }

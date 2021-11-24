@@ -1,34 +1,28 @@
 package uk.ac.ed.inf;
 
-import com.google.gson.JsonArray;
-import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.LineString;
 import com.mapbox.geojson.Point;
-import org.apache.derby.shared.common.util.ArrayUtil;
 
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.TreeSet;
 
 public class Drone {
 
     ServerClient client;
-    WordsW3W words = new WordsW3W("localhost", "9898");
-    Menus menus;
     OrdersIO orders;
     int MOVES = 1500;
 
     Date date;
     AStar pathFinder;
-    //AStarPathFinder pathFinder;
-    JourneyPlanner journeyPlanner;
+    JourneyPlanner journeyPlanner = new CostPriority();
     HashMap<String,Order> orderList;
     ArrayList<String> journey;
 
+    OrderPlanner orderPlanner = new OrderPlanner();
 
-    public Drone(Date date ,AStar pathFinder, JourneyPlanner journeyPlanner,ServerClient client, OrdersIO orders){
+
+    public Drone(Date date , AStar pathFinder, JourneyPlanner journeyPlanner, ServerClient client, OrdersIO orders){
 
         this.date = date;
         this.pathFinder = pathFinder;
@@ -37,12 +31,10 @@ public class Drone {
         this.orders = orders;
 
         this.orderList = OrdersIO.getOrders();
-        this.journey = journeyPlanner.getOrdersExp(getOrders(orderList));
+        this.journey = journeyPlanner.planJourney(getOrders(orderList));
 
 
     }
-
-
 
     public LineString getPlan(){
 
@@ -59,12 +51,13 @@ public class Drone {
         }
 
         System.out.println( MOVES);
+        System.out.println(toLineString(completePlan).toJson());
         return toLineString(completePlan);
 
     }
 
     private ArrayList<LongLat> planRoute(ArrayList<String> journey) {
-        ArrayList<LongLat> coords = orderToPath(journey);
+        ArrayList<LongLat> coords = orderPlanner.orderToPath(journey);
         ArrayList<LongLat> completePlan = new ArrayList<>();
         System.out.println(journey.size());
         for(int i = 0; i< coords.size() -1;i++){
@@ -98,56 +91,7 @@ public class Drone {
         return LineString.fromLngLats(points);
     }
 
-    private ArrayList<LongLat> orderToPath(ArrayList<String> orders){
-        ArrayList<LongLat> coords = new ArrayList<>();
-        HashMap<String,Order> orders1 = OrdersIO.getOrders();
-        LongLat appletone = new LongLat(-3.186874,55.944494 );
-        coords.add(appletone);
-        HashMap<String,OrderItems> orderItems = OrdersIO.getOrderItems();
-        double dist = Double.POSITIVE_INFINITY;
-        for(String order : orders){
-            ArrayList<LongLat> itemShops = new ArrayList<>();
-            LinkedHashSet<String> itemShopsNoDuplicate = new LinkedHashSet<>();
 
-            LongLat pickupLocation = words.getLongLatFrom3Words(orders1.get(order).deliverTo);
-
-            for(String item :orderItems.get(order).items ){
-                String restaurantLocation = menus.getLocationOfMenuItem(item);
-                itemShopsNoDuplicate.add(restaurantLocation);
-            }
-
-            for(String restaurantLocation: itemShopsNoDuplicate){
-                LongLat resLocation = words.getLongLatFrom3Words(restaurantLocation);
-                if(pickupLocation.distanceTo(resLocation) > dist){
-                    dist = pickupLocation.distanceTo(resLocation);
-                    itemShops.add(0,resLocation);
-                    System.out.println("closest:" + resLocation.longitude + " " + resLocation.latitude);
-                }else{
-                    itemShops.add(resLocation);
-                }
-               // System.out.println(resLocation.longitude + " " + resLocation.latitude);
-            }
-
-//            System.out.println(itemShopsNoDuplicate.size());
-//            System.out.println(orderItems.get(order).items);
-//            System.out.println(itemShops.size());
-//            System.out.println(itemShops);
-//
-//            System.out.println(itemShopsNoDuplicate.size());
-
-
-            for(LongLat coord :  itemShops){
-                //System.out.println("nodup: "+ coord.longitude + " " + coord.latitude);
-                coords.add(coord);
-            }
-            coords.add(words.getLongLatFrom3Words(orders1.get(order).deliverTo));
-        }
-
-        coords.add(appletone);
-        return coords;
-
-
-    }
 
     public double percentageMoney (){
         HashMap<String,OrderItems> orderItems = OrdersIO.getOrderItems();

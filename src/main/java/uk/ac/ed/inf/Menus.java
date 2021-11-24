@@ -34,8 +34,8 @@ public class Menus extends ServerClient {
             e.printStackTrace();
         }
 
-
     }
+
 
     private static HashMap<String, Menu> menus = new HashMap<>();
     private static List<Restaurant> responseRestaurants = new ArrayList<>() {};
@@ -44,21 +44,49 @@ public class Menus extends ServerClient {
         return menus;
     }
 
+
+    public LongLat getLongLatFrom3Words(String word) {
+        W3W details = null;
+        try{
+
+            String[] wordArr = word.split("\\.");
+            String endpoint = "/words/" + wordArr[0] + "/" + wordArr[1] + "/" + wordArr[2] + "/details.json";
+            HttpResponse<String> response = doGetRequest(this.name,this.port,endpoint);
+            details = new Gson().fromJson(response.body(),W3W.class);
+        }catch (IOException | InterruptedException e){
+            e.printStackTrace();
+        }
+        LongLat coords = new LongLat(details.coordinates.lng,details.coordinates.lat);
+        return coords;
+
+    }
+
     /**
      * Helper function to fill up the Hashmap "menu"
      * from all the menus from all different restaurants
      */
     public void storeItems() {
-        getResponseRestaurants();
-
         for (Restaurant restaurant: responseRestaurants){
+            restaurant.test = getLongLatFrom3Words(restaurant.getLocation());
             for (Menu menu : restaurant.getMenu()){
                 menus.put(menu.getItem(), menu);
             }
         }
     }
 
-    public static String getLocationOfMenuItem(String item){
+
+    public static LongLat getLocationOfMenuItem(String item){
+        for (Restaurant restaurant: responseRestaurants){
+            for (Menu menu : restaurant.getMenu()){
+                if (menu.getItem().equals(item)){
+                    return restaurant.test;
+                }
+
+            }
+        }
+        return null;
+    }
+    public static String getW3WOfMenuItem(String item){
         for (Restaurant restaurant: responseRestaurants){
             for (Menu menu : restaurant.getMenu()){
                 if (menu.getItem().equals(item)){
@@ -70,16 +98,6 @@ public class Menus extends ServerClient {
         return null;
     }
 
-    /**
-     * Helper function to parse json string into java object
-     * after getting the http response
-     * @return
-     */
-    public void getResponseRestaurants(){
-
-
-
-    }
 
     /**
      * Function that gets the cost of each item

@@ -6,5 +6,5 @@ public class Order {
     String orderNo;
     Date deliveryDate;
     String customer;
-    String deliverTo;
+    LongLat deliverTo;
 }

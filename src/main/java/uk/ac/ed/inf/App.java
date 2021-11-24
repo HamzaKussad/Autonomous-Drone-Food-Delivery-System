@@ -1,16 +1,12 @@
 package uk.ac.ed.inf;
 
-import com.mapbox.geojson.Feature;
-import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.LineString;
 import com.mapbox.geojson.Point;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.sql.Date;
-import java.util.List;
 
 /**
  * Hello world!
@@ -26,12 +22,15 @@ public class App {
         }
         return LineString.fromLngLats(points);
     }
+
+    public static String webServerPort;
+    public static String databasePort;
     public static void main( String[] args ) throws ParseException {
         String day = args[0];
         String month = args[1];
         String year = args[2];
-        String webServerPort = args[3];
-        String databasePort = args[4];
+        webServerPort = args[3];
+        databasePort = args[4];
 
         System.out.println(databasePort);
 
@@ -57,12 +56,13 @@ public class App {
 //
         AStar finder = new AStar();
 //        //AStarPathFinder finder = new AStarPathFinder();
-        JourneyPlanner opt = new JourneyPlanner();
+        JourneyPlanner journeyPlanner = new CostPriority();
 
 
-        Drone drone = new Drone(date,finder,opt,client,orders);
+        Drone drone = new Drone(date,finder,journeyPlanner,client,orders);
+
         System.out.println(drone.percentageMoney());
-        //System.out.println(drone.getPlan().toJson());
+
 
 
 //        AStarNode beirut = new AStarNode(-3.186199,55.945734);

@@ -14,13 +14,12 @@ public class OrdersIO {
         this.port = port;
     }
 
+    WordsW3W w3wServer = new WordsW3W("localhost",App.webServerPort);
+
     Connection conn;
 
     private static HashMap<String,Order> orders = new HashMap<>();
     private static HashMap<String,OrderItems> orderItems = new HashMap<>();
-
-
-
 
     public void connect(){
         String url = "jdbc:derby://" + name +":"+ port +"/derbyDB";
@@ -63,7 +62,7 @@ public class OrdersIO {
                 order.orderNo = rs.getString("orderNo");
                 order.deliveryDate = rs.getDate("deliveryDate");
                 order.customer = rs.getString("customer");
-                order.deliverTo = rs.getString("deliverTo");
+                order.deliverTo = w3wServer.getLongLatFrom3Words( rs.getString("deliverTo"));
 
                 orders.put(order.orderNo, order);
             }
@@ -92,8 +91,6 @@ public class OrdersIO {
                 String item = rs.getString("item");
                 items.add(item);
             }
-
-
 
             orderDetails.orderNo = orderNo;
             orderDetails.items = items;
