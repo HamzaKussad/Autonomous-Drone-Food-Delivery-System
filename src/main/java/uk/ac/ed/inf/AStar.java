@@ -22,6 +22,7 @@ public class AStar implements PathFInder{
             }
 
             for (int angle =0; angle<360; angle+=30){
+
                 var point = path.nextPosition(angle);
                 Line2D possibleMove = new Line2D.Double(path.longitude, path.latitude,point.longitude,point.latitude);
                 if(!NoFlyZone.intersect(possibleMove) && point.isConfined()){
@@ -35,12 +36,14 @@ public class AStar implements PathFInder{
                     if(!openList.contains(point) && !closedList.contains(point)){
                         point.parent = path;
                         point.g = actualDistMoved;
-                        point.f = point.g + 0.75*point.chebyshevDist(target)+ 1.5*point.distanceTo(target)  ;
+                        point.f = point.g + 0.75*point.chebyshevDist(target)+ 1.5*point.distanceTo(target);
+                        path.angle = angle;
                         openList.add(point);
                     }else if(actualDistMoved < point.g){
                         point.parent = path;
                         point.g = actualDistMoved;
-                        point.f = point.g + 0.75*point.chebyshevDist(target) + 1.5*point.distanceTo(target) ;
+                        point.f = point.g + 0.75*point.chebyshevDist(target) + 1.5*point.distanceTo(target);
+                        path.angle = angle;
                         if(closedList.contains(point)){
                             closedList.remove(point);
                             openList.add(point);
@@ -66,5 +69,29 @@ public class AStar implements PathFInder{
         }
         Collections.reverse(coords);
         return coords;
+    }
+
+    public ArrayList<Flightpath> nodeToFlightpath(Node path){
+        ArrayList<Flightpath> flightpaths = new ArrayList<>();
+        ArrayList<Node> nodes = new ArrayList<>();
+        nodes.add(path);
+        while (path.parent != null){
+            nodes.add(path);
+            path = path.parent;
+
+        }
+        Collections.reverse(nodes);
+
+        for(int i=0; i< nodes.size()-1; i++){
+            Flightpath flightpath = new Flightpath();
+            flightpath.setFromLatitude(nodes.get(i).latitude);
+            flightpath.setFromLongitude(nodes.get(i).longitude);
+            flightpath.setAngle(nodes.get(i).angle);
+            flightpath.setToLatitude(nodes.get(i+1).latitude);
+            flightpath.setToLongitude(nodes.get(i+1).longitude);
+            flightpaths.add(flightpath);
+        }
+
+        return flightpaths;
     }
 }

@@ -7,6 +7,7 @@ public class Order {
     private Date deliveryDate;
     private String customer;
     private LongLat deliverTo;
+    private String deliverToW3W;
 
     public String getOrderNo() {
         return orderNo;
@@ -16,13 +17,18 @@ public class Order {
         return deliveryDate;
     }
 
+    public String getCustomer() {
+        return customer;
+    }
+
     public LongLat getDeliverTo() {
         return deliverTo;
     }
 
-    public String getCustomer() {
-        return customer;
+    public String getDeliverToW3W(){
+        return deliverToW3W;
     }
+
 
     public void setOrderNo(String orderNo) {
         this.orderNo = orderNo;
@@ -38,5 +44,9 @@ public class Order {
 
     public void setDeliveryDate(Date deliveryDate) {
         this.deliveryDate = deliveryDate;
+    }
+
+    public void setDeliverToW3W(String deliverToW3W){
+        this.deliverToW3W = deliverToW3W;
     }
 }

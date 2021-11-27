@@ -32,36 +32,36 @@ public class App {
         webServerPort = args[3];
         databasePort = args[4];
 
-        System.out.println(databasePort);
 
         String dateString = day + "-"+month +"-" + year + "";
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
         long milliseconds =  sdf.parse(dateString).getTime();
 
-
-
         Date date = new Date(milliseconds);
         System.out.println(date);
 
         ServerClient client = new ServerClient("localhost", webServerPort);
-        OrdersIO orders = new OrdersIO("localhost", databasePort);
+        DatabaseIO orders = new DatabaseIO("localhost", databasePort);
         orders.storeOrders(date);
         orders.storeOrderDetails();
         Menus menus = new Menus("localhost", webServerPort);
         menus.storeItems();
         NoFlyZone noFlyZone = new NoFlyZone("localhost", "9898");
         noFlyZone.getNoFlyZone();
-////
-//
+
         AStar finder = new AStar();
-//        //AStarPathFinder finder = new AStarPathFinder();
         JourneyPlanner journeyPlanner = new CostPriority();
 
 
         Drone drone = new Drone(date,finder,journeyPlanner,client,orders);
 
-        System.out.println(drone.percentageMoney());
+        orders.creatingDeliveriesDatabase(journeyPlanner);
+
+        drone.outputGeoJsonFolder(day,month,year);
+//        System.out.println(drone.percentageMoney());
+
+
 
 
 
@@ -81,71 +81,7 @@ public class App {
 //        AStarNode pickup6 = new AStarNode(	-3.1893,55.9434 );
 //        AStarNode appleton = new AStarNode(	-3.1869,	55.9445);
 
-//
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(bingTea,appleton))).toJson());
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(rudis,bingTea))).toJson());
-//
-//
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(bingTea,basket))).toJson());
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(pickup4,bingTea))).toJson());
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(bingTea,pickup1))).toJson());
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(bingTea,pickup2))).toJson());
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(bingTea,pickup3))).toJson());
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(bingTea,pickup4))).toJson());
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(bingTea,pickup5))).toJson());
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(bingTea,pickup6))).toJson());
-//
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(pickup1,bingTea))).toJson());
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(pickup2,bingTea))).toJson());
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(pickup3,bingTea))).toJson());
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(pickup4,bingTea))).toJson());
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(pickup5,bingTea))).toJson());
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(pickup6,bingTea))).toJson());
-//
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(bingTea,nile))).toJson());
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(pickup4,bingTea))).toJson());
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(soderberg,pickup1))).toJson());
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(soderberg,pickup2))).toJson());
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(soderberg,pickup3))).toJson());
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(soderberg,pickup4))).toJson());
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(soderberg,pickup5))).toJson());
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(soderberg,pickup6))).toJson());
-//
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(pickup1,soderberg))).toJson());
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(pickup2,soderberg))).toJson());
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(pickup3,soderberg))).toJson());
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(pickup4,soderberg))).toJson());
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(pickup5,soderberg))).toJson());
-//        System.out.println(toLineString(finder.nodeToList(finder.getPath(pickup6,soderberg))).toJson());
-
-//        DatabaseClient db = new DatabaseClient();
-//        db.getOrders();
-//        db.fillOrderDetails();
-//        System.out.println();
-
-
-//        System.out.println( "Hello World!!!!" );
-
-//
-//        LongLat beirut = new LongLat(-3.186199,55.945734);
-//        LongLat soderberg = new LongLat(-3.191594,55.943658);
-//        LongLat rudis = new LongLat(-3.191065,55.945626);
-//        LongLat test1 = new LongLat(-3.1832,55.9461);
-
-//        LongLat ting = new LongLat(-3.1900,55.9457);
-//        LongLat pressCoffee = new LongLat(-3.1846940,55.9429 );
-//
-////        ArrayList<LongLat> testre = new ArrayList<>();
-////        testre.add(beirut);
-////        testre.add(soderberg);
-////
-////        DroneController heh = new DroneController();
-////        System.out.println( heh.getRoute(testre).toJson());
-//
-//        AStarPathFinder test = new AStarPathFinder();
-//        var routes = test.findRoute(rudis,pressCoffee);
-//        System.out.println(toLineString(routes).toJson());
-
+/
 
 
     }

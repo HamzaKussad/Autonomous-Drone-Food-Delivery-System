@@ -1,8 +1,12 @@
 package uk.ac.ed.inf;
 
+import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.LineString;
 import com.mapbox.geojson.Point;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,19 +14,19 @@ import java.util.HashMap;
 public class Drone {
 
     ServerClient client;
-    OrdersIO orders;
+    DatabaseIO orders;
     int MOVES = 1500;
 
     Date date;
     AStar pathFinder;
-    JourneyPlanner journeyPlanner = new CostPriority();
-    HashMap<String,Order> orderList;
+    JourneyPlanner journeyPlanner;
+    String[] orderList;
     ArrayList<String> journey;
 
     OrderPlanner orderPlanner = new OrderPlanner();
 
 
-    public Drone(Date date , AStar pathFinder, JourneyPlanner journeyPlanner, ServerClient client, OrdersIO orders){
+    public Drone(Date date , AStar pathFinder, JourneyPlanner journeyPlanner, ServerClient client, DatabaseIO orders){
 
         this.date = date;
         this.pathFinder = pathFinder;
@@ -30,17 +34,18 @@ public class Drone {
         this.client = client;
         this.orders = orders;
 
-        this.orderList = OrdersIO.getOrders();
-        this.journey = journeyPlanner.planJourney(getOrders(orderList));
+        this.orderList = DatabaseIO.getOrderIds();
+        this.journey = journeyPlanner.planJourney(orderList);
 
 
     }
 
-    public LineString getPlan(){
+    ArrayList<Flightpath> flightpaths = new ArrayList<>();
+
+    public FeatureCollection getPlan(){
 
         System.out.println("orderlist:" + orderList);
         String order[] = {"177055e5","406d9b98"};
-        System.out.println(orderList.size());
         ArrayList<LongLat> completePlan = planRoute(journey);
         while(MOVES <=0){
             System.out.println("removing last order");
@@ -51,8 +56,8 @@ public class Drone {
         }
 
         System.out.println( MOVES);
-        System.out.println(toLineString(completePlan).toJson());
-        return toLineString(completePlan);
+        System.out.println(toFeatureCollection(completePlan).toJson());
+        return toFeatureCollection(completePlan);
 
     }
 
@@ -61,40 +66,63 @@ public class Drone {
         ArrayList<LongLat> completePlan = new ArrayList<>();
         System.out.println(journey.size());
         for(int i = 0; i< coords.size() -1;i++){
-           // System.out.println("long:"  +coords.get(i).longitude + " lat:" + coords.get(i).latitude);
+
             ArrayList<LongLat> path = pathFinder.nodeToList(pathFinder.getPath(coords.get(i).toNode(), (coords.get(i+1)).toNode()));
-           // System.out.println(path.size());
-            MOVES -= path.size() + 1; // +1 for hover move
+
+            MOVES -= path.size() +1; // +1 for hover move
+
             for(LongLat move : path){
+
                 completePlan.add(move);
             }
-            completePlan.add(path.get(path.size()-1)); //get target location for hovering position
+            completePlan.add(path.get(path.size()-1)); //add target location for hovering position
         }
         return completePlan;
     }
 
-    private String[] getOrders(HashMap<String,Order> orderList){
-        ArrayList<String> orders = new ArrayList<>();
-        for(String order: OrdersIO.getOrders().keySet()){
-            System.out.println(order);
-            orders.add(order);
-        }
-        return  orders.toArray(new String[orders.size()]);
-    }
-
-    private LineString toLineString(ArrayList<LongLat> routes){
+    private FeatureCollection toFeatureCollection(ArrayList<LongLat> routes){
         ArrayList<Point> points = new ArrayList<>();
         for(LongLat route: routes){
 
             points.add(Point.fromLngLat(route.longitude,route.latitude));
         }
-        return LineString.fromLngLats(points);
+        var featureLineString =  Feature.fromGeometry(LineString.fromLngLats(points));
+        return FeatureCollection.fromFeature(featureLineString);
     }
+
+    public void outputGeoJsonFolder(String day, String month, String year) {
+        try{
+
+            FileWriter file = new FileWriter("drone-"+day +"-" + month + "-" + year +".geojson");
+            file.write(getPlan().toJson());
+            file.close();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    public ArrayList<Delivery> deliveryDataForDatabase() {
+        ArrayList<Delivery> deliveries = new ArrayList<>();
+        HashMap<String,Order> orderList1 = DatabaseIO.getOrders();
+        HashMap<String,OrderItems> orderItems = DatabaseIO.getOrderItems();
+        for(String order: journey){
+            Delivery delivery = new Delivery();
+            delivery.orderNo = order;
+            delivery.costInPence = Menus.getDeliveryCost(orderItems.get(order).getItems());
+            delivery.deliveredTo = orderList1.get(order).getDeliverToW3W();
+            deliveries.add(delivery);
+        }
+        return deliveries;
+    }
+
+//    public ArrayList<Flightpath> flightpathsDataForDatabase(){
+//        ArrayList<Flightpath> flightpaths = new ArrayList<>();
+//    }
 
 
 
     public double percentageMoney (){
-        HashMap<String,OrderItems> orderItems = OrdersIO.getOrderItems();
+        HashMap<String,OrderItems> orderItems = DatabaseIO.getOrderItems();
         double actualDelivered = 0;
         double allOrders = 0;
 

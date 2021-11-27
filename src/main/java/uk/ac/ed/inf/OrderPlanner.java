@@ -1,19 +1,16 @@
 package uk.ac.ed.inf;
 
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
 
 public class OrderPlanner {
 
     public ArrayList<LongLat> orderToPath(ArrayList<String> orders){
         ArrayList<LongLat> coords = new ArrayList<>();
-        HashMap<String,Order> orders1 = OrdersIO.getOrders();
+        HashMap<String,Order> orders1 = DatabaseIO.getOrders();
         LongLat appletone = new LongLat(-3.186874,55.944494 );
         coords.add(appletone);
-        HashMap<String,OrderItems> orderItems = OrdersIO.getOrderItems();
+        HashMap<String,OrderItems> orderItems = DatabaseIO.getOrderItems();
 
         ArrayList<LongLat> itemShops = new ArrayList<>();
 
@@ -58,9 +55,9 @@ public class OrderPlanner {
 
     }
 
-    public double getOrderHeuristic(String currentOrder, String nextOrder){
-        HashMap<String,Order> orderList = OrdersIO.getOrders();
-        HashMap<String,OrderItems> orderItems = OrdersIO.getOrderItems();
+    public double getOrderDistance(String currentOrder, String nextOrder){
+        HashMap<String,Order> orderList = DatabaseIO.getOrders();
+        HashMap<String,OrderItems> orderItems = DatabaseIO.getOrderItems();
         orderList.get(currentOrder);
 
         HashMap<String,LongLat> itemShopsNoDuplicate = new HashMap<>();
@@ -84,7 +81,7 @@ public class OrderPlanner {
 
         int price =  Menus.getDeliveryCost(orderItems.get(nextOrder).getItems());
 
-        return totalDist/price;
+        return totalDist;
 
     }
 

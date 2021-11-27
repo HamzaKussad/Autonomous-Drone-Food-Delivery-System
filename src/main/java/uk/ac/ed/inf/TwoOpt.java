@@ -36,6 +36,8 @@ public class TwoOpt implements JourneyPlanner {
         return new ArrayList<>(Arrays.asList(orders));
     }
 
+
+
     private void TwoOptSwap(int i, int j, String[] journey, String[] newJourney) {
         for(int c = 0; c<= i-1; ++c){
             newJourney[c] = journey[c];
@@ -51,11 +53,16 @@ public class TwoOpt implements JourneyPlanner {
 
     }
 
+    @Override
+    public ArrayList<Delivery> deliveryDataForDatabase() {
+        return null;
+    }
+
 
     private double getJourneyCost(String[] orders){
         double totalCost = 0;
         for(int i=0; i< orders.length -1; i++){
-            totalCost += orderPlanner.getOrderHeuristic(orders[i], orders[i+1]);
+            totalCost += orderPlanner.getOrderDistance(orders[i], orders[i+1]);
         }
         return totalCost;
     }
