@@ -4,5 +4,4 @@ import java.util.ArrayList;
 
 public interface JourneyPlanner {
     public ArrayList<String> planJourney(String[] orders);
-    public ArrayList<Delivery> deliveryDataForDatabase();
 }

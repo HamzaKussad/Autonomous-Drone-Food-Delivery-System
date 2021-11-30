@@ -131,7 +131,7 @@ public class DatabaseIO {
             Statement statement = conn.createStatement();
             DatabaseMetaData databaseMetaData = conn.getMetaData();
 
-            ResultSet resultSet = databaseMetaData.getTables(null,null, "deliveries", null);
+            ResultSet resultSet = databaseMetaData.getTables(null,null, "DELIVERIES", null);
 
             if(resultSet.next()){
                 statement.execute("drop table deliveries");
@@ -140,9 +140,8 @@ public class DatabaseIO {
             statement.execute(
                     "create table deliveries("+
                             "orderNo char(8), "+
-                            "deliveryDate date, "+
-                            "customer char(8), "+
-                            "deliverTo varchar(18))");
+                            "deliveredTo varchar(19), "+
+                            "costInPence int)");
 
             PreparedStatement psDeliveries = conn.prepareStatement(
                     "insert into deliveries values (?,?,?)");
@@ -151,6 +150,8 @@ public class DatabaseIO {
                 psDeliveries.setString(1, d.orderNo);
                 psDeliveries.setString(2,d.deliveredTo);
                 psDeliveries.setInt(3, d.costInPence);
+
+                psDeliveries.execute();
             }
 
             disconnect();
@@ -165,7 +166,7 @@ public class DatabaseIO {
             Statement statement = conn.createStatement();
             DatabaseMetaData databaseMetaData = conn.getMetaData();
 
-            ResultSet resultSet = databaseMetaData.getTables(null,null, "flightpath", null);
+            ResultSet resultSet = databaseMetaData.getTables(null,null, "FLIGHTPATH", null);
 
             if(resultSet.next()){
                 statement.execute("drop table flightpath");
@@ -191,6 +192,7 @@ public class DatabaseIO {
                 psFlightpath.setDouble(5,f.getToLongitude());
                 psFlightpath.setDouble(6,f.getToLatitude());
 
+                psFlightpath.execute();
             }
 
             disconnect();

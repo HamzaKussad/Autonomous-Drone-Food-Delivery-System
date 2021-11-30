@@ -55,13 +55,17 @@ public class App {
 
 
         Drone drone = new Drone(date,finder,journeyPlanner,client,orders);
+        System.out.println( drone.percentageMoney());
 
-        orders.creatingDeliveriesDatabase(journeyPlanner);
+        orders.creatingDeliveriesDatabase(drone.deliveryDataForDatabase());
+        orders.creatingFlightpathDatabase(drone.flightpathsDataForDatabase());
 
         drone.outputGeoJsonFolder(day,month,year);
-//        System.out.println(drone.percentageMoney());
 
 
+        LongLat test = new LongLat(-3.1907899184716935,55.94398750691308);
+        System.out.println(test.nextPosition(320).longitude);
+        System.out.println(test.nextPosition(320).latitude);
 
 
 
@@ -81,7 +85,6 @@ public class App {
 //        AStarNode pickup6 = new AStarNode(	-3.1893,55.9434 );
 //        AStarNode appleton = new AStarNode(	-3.1869,	55.9445);
 
-/
 
 
     }

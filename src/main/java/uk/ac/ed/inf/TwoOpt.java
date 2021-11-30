@@ -1,7 +1,6 @@
 package uk.ac.ed.inf;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class TwoOpt implements JourneyPlanner {
     //used from
@@ -53,18 +52,42 @@ public class TwoOpt implements JourneyPlanner {
 
     }
 
-    @Override
-    public ArrayList<Delivery> deliveryDataForDatabase() {
-        return null;
-    }
-
 
     private double getJourneyCost(String[] orders){
         double totalCost = 0;
         for(int i=0; i< orders.length -1; i++){
-            totalCost += orderPlanner.getOrderDistance(orders[i], orders[i+1]);
+            totalCost += getOrderHeuristic(orders[i], orders[i+1]);
         }
         return totalCost;
+    }
+
+
+    private double getOrderHeuristic(String currentOrder, String nextOrder){
+        HashMap<String,Order> orderList = DatabaseIO.getOrders();
+        HashMap<String,OrderItems> orderItems = DatabaseIO.getOrderItems();
+        orderList.get(currentOrder);
+
+        HashMap<String,LongLat> itemShops = new HashMap<>();
+        for(String item :orderItems.get(nextOrder).getItems() ){
+            String w3wRestautantLocation = Menus.getW3WOfMenuItem(item);
+            LongLat restaurantLocation = Menus.getLocationOfMenuItem(item);
+            itemShops.put(w3wRestautantLocation, restaurantLocation);
+        }
+
+        double totalDist = 0.0;
+
+        totalDist += orderList.get(currentOrder).getDeliverTo().distanceTo(itemShops.get(0));
+
+        for(int i=0; i< itemShops.size()-1;i++){
+            totalDist+= itemShops.get(i).distanceTo(itemShops.get(i+1));
+        }
+
+        totalDist+= itemShops.get(itemShops.size()-1).distanceTo(orderList.get(nextOrder).getDeliverTo());
+
+        int price =  Menus.getDeliveryCost(orderItems.get(nextOrder).getItems());
+
+        return totalDist/price;
+
     }
 
 }

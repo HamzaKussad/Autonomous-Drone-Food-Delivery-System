@@ -3,7 +3,6 @@ package uk.ac.ed.inf;
 import java.util.*;
 
 public class CostPriority implements JourneyPlanner{
-    OrderPlanner planner = new OrderPlanner();
     HashMap<String,Integer> orderByPrice = new HashMap<>();
     HashMap<String,OrderItems> orderItems = DatabaseIO.getOrderItems();
     HashMap<String,Order> orderList = DatabaseIO.getOrders();
@@ -51,8 +50,5 @@ public class CostPriority implements JourneyPlanner{
 
         return orderedByPrice;
     }
-
-
-
 
 }

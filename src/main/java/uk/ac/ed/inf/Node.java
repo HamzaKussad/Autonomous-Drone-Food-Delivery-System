@@ -3,7 +3,7 @@ package uk.ac.ed.inf;
 public class Node extends LongLat implements Comparable<Node>{
     public double f = Double.MAX_VALUE;
     public double g = Double.MAX_VALUE;
-    public int angle;
+    public int angle =-999;
     public Node parent;
 
     /**
@@ -18,10 +18,6 @@ public class Node extends LongLat implements Comparable<Node>{
 
     public LongLat toLongLat(){
         return new LongLat(this.longitude,this.latitude);
-    }
-
-    public int getAngle() {
-        return angle;
     }
 
     @Override
