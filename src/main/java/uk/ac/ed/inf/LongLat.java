@@ -55,7 +55,7 @@ public class LongLat {
     public double chebyshevDist(LongLat location){
         var dx = Math.abs(this.latitude - location.latitude);
         var dy = Math.abs(this.longitude - location.longitude);
-        return (dx+dy) + 1.85*Math.max(dy,dx);
+        return (dx+dy) + 1.97*Math.max(dy,dx);
     }
 
 

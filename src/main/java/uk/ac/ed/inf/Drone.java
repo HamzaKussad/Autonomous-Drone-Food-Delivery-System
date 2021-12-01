@@ -34,7 +34,7 @@ public class Drone {
         this.orders = orders;
 
         this.orderList = DatabaseIO.getOrderIds();
-        String order[] = {"c16220b9","4e67bb23"};
+        String order[] = {"4f457bd9"};
         //"4e67bb23"
         this.journey = journeyPlanner.planJourney(orderList);
     }
@@ -63,85 +63,98 @@ public class Drone {
     }
 
     private ArrayList<LongLat> planRoute() {
-        ArrayList<LongLat> coords = orderPlanner.orderToPath(journey);
         ArrayList<LongLat> completePlan = new ArrayList<>();
         completeFlightpath = new ArrayList<>();
+        LongLat appleton = new LongLat(-3.186874,55.944494 );
 
-        LongLat appletone = new LongLat(-3.186874,55.944494 );
-        System.out.println(journey.size());
+        ArrayList<LongLat> coords;
 
-        Node pathNode = pathFinder.getPath(appletone.toNode(), (coords.get(1)).toNode());
-        ArrayList<LongLat> path = pathFinder.nodeToList(pathNode);
-        for(LongLat move: path){
-            completePlan.add(move);
+        if(journey.size() == 1) {
+            coords = orderPlanner.orderToPathTest(journey.get(0));
+            Node target = flyFromAppleton(completePlan, appleton, coords);
+            target = orderMoves(completePlan, coords, 0, target);
+            returnBackToAppleton(completePlan, appleton, target);
+            return completePlan;
         }
-        LongLat lastPoint = path.get(path.size()-1);
-        completePlan.add(lastPoint); //for hovering
-
-        MOVES -= path.size() +1; // +1 for hover move
-//
-
-//
-        ArrayList<Flightpath> flightpaths = pathFinder.nodeToFlightpath(pathNode);
 
 
-        for(Flightpath flightpath: flightpaths){
-//                    flightpath.setOrderNo(journey.get(i));
-            completeFlightpath.add(flightpath);
+        coords = orderPlanner.orderToPathTest(journey.get(0));
+        Node target = flyFromAppleton(completePlan, appleton, coords);
+        target = orderMoves(completePlan, coords, 0, target);
+        for(int order=1; order<journey.size(); order++){
+            coords = orderPlanner.orderToPathTest(journey.get(order));
+            target = orderMoves(completePlan, coords, order, target);
         }
-//        Flightpath last1 = flightpaths.get(flightpaths.size()-1);
-//        Flightpath hoverAt = new Flightpath();
-//        double destinationLat = last1.getFromLatitude();
-//        double destinationLong = last1.getFromLongitude();
-//        hoverAt.setFromLongitude(destinationLong);
-//        hoverAt.setFromLatitude(destinationLat);
-//        hoverAt.setAngle(-999);
-//        hoverAt.setToLongitude(destinationLong);
-//        hoverAt.setToLatitude(destinationLat);
-//        completeFlightpath.add(hoverAt);
-//
+        returnBackToAppleton(completePlan, appleton, target);
 
-        for(int j =2 ; j< coords.size() ;j++){
 
-            LongLat last = new LongLat(pathNode.longitude,pathNode.latitude);
 
-            pathNode = (pathFinder.getPath(last.toNode(), (coords.get(j)).toNode()));
-            path = pathFinder.nodeToList(pathNode);
-
-            for(int i =0; i < path.size(); i++){
-                completePlan.add(path.get(i));
-            }
-            lastPoint = path.get(path.size()-1);
-            completePlan.add(lastPoint); //for hovering
-            System.out.println(path.size());
-            MOVES -= path.size() +1; // +1 for hover move
-//////
-//////
-            flightpaths = pathFinder.nodeToFlightpath(pathNode);
-//
-////
-            for(int i =0; i < flightpaths.size(); i++){
-//                    flightpath.setOrderNo(journey.get(i));
-                completeFlightpath.add(flightpaths.get(i));
-            }
-//                last1 = flightpaths.get(flightpaths.size()-1);
-//                hoverAt = new Flightpath();
-//                destinationLat = last1.getFromLatitude();
-//                destinationLong = last1.getFromLongitude();
-//                hoverAt.setFromLongitude(destinationLong);
-//                hoverAt.setFromLatitude(destinationLat);
-//                hoverAt.setAngle(-999);
-//                hoverAt.setToLongitude(destinationLong);
-//                hoverAt.setToLatitude(destinationLat);
-//                completeFlightpath.add(hoverAt);
-        }
-//        }
-//        completePlan = pathFinder.nodeToList(pathNode);
-//        completeFlightpath = pathFinder.nodeToFlightpath(pathNode);
-//        MOVES -= completePlan.size() + coords.size();
-        System.out.println(completePlan.size());
 
         return completePlan;
+    }
+
+    private Node orderMoves(ArrayList<LongLat> completePlan, ArrayList<LongLat> coords, int i, Node target) {
+        for(int j = 0; j< coords.size() ; j++) {
+            LongLat startLocation = new LongLat(target.longitude, target.latitude);
+            LongLat targetLocation = coords.get(j);
+            target = (pathFinder.getPath(startLocation.toNode(), targetLocation.toNode()));
+            ArrayList<LongLat> path = pathFinder.nodeToList(target);
+            ArrayList<Flightpath> flightpaths = pathFinder.nodeToFlightpath(target);
+
+
+            for (LongLat move: path) {
+                completePlan.add(move);
+            }
+            MOVES -= path.size() +1; // +1 for hover move
+            for(Flightpath flightpath: flightpaths){
+                flightpath.setOrderNo(journey.get(i));
+                completeFlightpath.add(flightpath);
+            }
+        }
+        return target;
+    }
+
+    private Node flyFromAppleton(ArrayList<LongLat> completePlan, LongLat appleton, ArrayList<LongLat> coords) {
+
+        Node pathNode = pathFinder.getPath(appleton.toNode(), (coords.get(0)).toNode());
+
+
+        ArrayList<LongLat> path = pathFinder.nodeToList(pathNode);
+
+        for (int k = 0; k < path.size(); k++) {
+            completePlan.add(path.get(k));
+        }
+        MOVES -= path.size() +1; // +1 for hover move
+
+        ArrayList<Flightpath> flightpaths = pathFinder.nodeToFlightpath(pathNode);
+
+        for(Flightpath flightpath: flightpaths){
+            flightpath.setOrderNo(journey.get(0));
+            completeFlightpath.add(flightpath);
+        }
+        return pathNode;
+    }
+
+    private void returnBackToAppleton(ArrayList<LongLat> completePlan, LongLat appleton, Node pathNode) {
+        ArrayList<LongLat> path;
+        ArrayList<Flightpath> flightpaths;
+        LongLat last = new LongLat(pathNode.longitude, pathNode.latitude);
+
+        pathNode = (pathFinder.getPath(last.toNode(), appleton.toNode()));
+
+        path = pathFinder.nodeToList(pathNode);
+        flightpaths = pathFinder.nodeToFlightpath(pathNode);
+
+
+        for (int k = 0; k < path.size(); k++) {
+            completePlan.add(path.get(k));
+        }
+        MOVES -= path.size() +1; // +1 for hover move
+        for(Flightpath flightpath: flightpaths){
+            int lastOrder= journey.size()-1;
+            flightpath.setOrderNo(journey.get(lastOrder));
+            completeFlightpath.add(flightpath);
+        }
     }
 
     private FeatureCollection toFeatureCollection(ArrayList<LongLat> routes){
