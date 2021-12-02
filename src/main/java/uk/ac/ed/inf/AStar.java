@@ -66,6 +66,13 @@ public class AStar implements PathFInder{
         }
         return null;
     }
+    /**
+     * This function takes the result node and breaks it down to an
+     * array of Coordinates with each LongLat being a move away from
+     * the previous one
+     * @param path Result node of the Astar algorithm
+     * @return ArrayList of LongLats
+     */
 
     public ArrayList<LongLat> nodeToList(Node path){
         ArrayList<LongLat> coords = new ArrayList<>();
@@ -73,12 +80,13 @@ public class AStar implements PathFInder{
         while (path.parent != null){
             path = path.parent;
             coords.add(path.toLongLat());
-
         }
 
         Collections.reverse(coords);
         return coords;
     }
+
+   //look into to fix or move to Drone
 
     public ArrayList<Flightpath> nodeToFlightpath(Node path){
         ArrayList<Flightpath> flightpaths = new ArrayList<>();

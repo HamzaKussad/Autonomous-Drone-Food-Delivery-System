@@ -14,15 +14,6 @@ import java.sql.Date;
  */
 public class App {
 
-    public static LineString toLineString(ArrayList<LongLat> routes){
-        ArrayList<Point> points = new ArrayList<>();
-        for(LongLat route: routes){
-
-            points.add(Point.fromLngLat(route.longitude,route.latitude));
-        }
-        return LineString.fromLngLats(points);
-    }
-
     public static String webServerPort;
     public static String databasePort;
     public static void main( String[] args ) throws ParseException {
@@ -31,7 +22,6 @@ public class App {
         String year = args[2];
         webServerPort = args[3];
         databasePort = args[4];
-
 
         String dateString = day + "-"+month +"-" + year + "";
 
@@ -50,6 +40,7 @@ public class App {
         NoFlyZone noFlyZone = new NoFlyZone("localhost", "9898");
         noFlyZone.getNoFlyZone();
 
+//        System.out.println(DatabaseIO.getOrders().size());
         AStar finder = new AStar();
         JourneyPlanner journeyPlanner = new CostPriority();
 
@@ -66,24 +57,6 @@ public class App {
         LongLat test = new LongLat(-3.1907899184716935,55.94398750691308);
         System.out.println(test.nextPosition(320).longitude);
         System.out.println(test.nextPosition(320).latitude);
-
-
-
-//        AStarNode beirut = new AStarNode(-3.186199,55.945734);
-//        AStarNode soderberg = new AStarNode(-3.191594,55.943658);
-//        AStarNode laby = new AStarNode(-3.1895,55.9438);
-//        AStarNode rudis = new AStarNode(-3.191065,55.945626);
-//        AStarNode greggs = new AStarNode(-3.1913,55.9456);
-//        AStarNode bingTea = new AStarNode(	-3.1853,	55.9447);
-//        AStarNode nile = new AStarNode(-3.1861,	55.9447);
-//        AStarNode basket = new AStarNode(-3.1852,	55.9447);
-//        AStarNode pickup1 = new AStarNode(	-3.1885,55.9440);
-//        AStarNode pickup2 = new AStarNode(	-3.1887,	55.9459);
-//        AStarNode pickup3 = new AStarNode(-3.1882, 	55.9436);
-//        AStarNode pickup4 = new AStarNode(-3.1878,55.9435);
-//        AStarNode pickup5 = new AStarNode(-3.1884,55.9454);
-//        AStarNode pickup6 = new AStarNode(	-3.1893,55.9434 );
-//        AStarNode appleton = new AStarNode(	-3.1869,	55.9445);
 
 
 

@@ -4,34 +4,73 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * This class handles all the Input and Output of the database.
+ */
+
 public class DatabaseIO {
+
+    /**
+     * name and port of the database server
+     */
 
     private String name;
     private String port;
+
+    /**
+     * Creates a DatabaseIO instance
+     * @param name
+     * @param port
+     */
 
     public DatabaseIO(String name, String port){
         this.name = name;
         this.port = port;
     }
 
+    /**
+     * This creates a w3wServer instance to be able to switch from w3w to LongLat
+     * immediately when reading from database
+     */
+
     private WordsW3W w3wServer = new WordsW3W("localhost",App.webServerPort);
+
+    /**
+     * creating a connection used to connect to database once and make it static as its heavy
+     */
 
     private static Connection conn;
 
+    /**
+     * collects orders read from database
+     */
+
     private static HashMap<String,Order> orders = new HashMap<>();
 
-    private static HashMap<String,OrderItems> orderItems = new HashMap<>();
+    /**
+     * collects the items of a specific order
+     */
+
+    private static HashMap<String, OrderDetails> orderDetails = new HashMap<>();
+
+   //----getters
 
     public static HashMap<String,Order> getOrders(){
         return orders;
     }
-    public static HashMap<String,OrderItems> getOrderItems(){
-        return orderItems;
+    public static HashMap<String, OrderDetails> getOrderDetails(){
+        return orderDetails;
     }
 
     public static String[] getOrderIds(){
         return  orders.keySet().toArray(new String[orders.keySet().size()]);
     }
+
+    //-----
+
+    /**
+     * function that connects to the database
+     */
 
     private void connect(){
         String url = "jdbc:derby://" + name +":"+ port +"/derbyDB";
@@ -41,6 +80,10 @@ public class DatabaseIO {
             e.printStackTrace();
         }
     }
+
+    /**
+     * function that disconnects from the database
+     */
 
     private void disconnect(){
         try {
@@ -53,10 +96,20 @@ public class DatabaseIO {
     }
 
 
+    /**
+     * A function that uses an Order object to store
+     * all the orders in a specific date using a hashmap.
+     * It connects to the database, uses a query to get the orders
+     * in a specific date, then reads all the data of that order
+     * and stores them as Order object and adds them to the hashmap
+     * with orderID as key and the order object as its value.
+     *
+     * @param deliveryDate from one of the input arguments when running
+     *                     this program
+     */
 
-    public HashMap<String,Order> storeOrders(Date deliveryDate){
-
-
+    public void storeOrders(Date deliveryDate){
+        
         final String ordersQuery =  "select * from orders where deliveryDate = (?)";
         try{
 
@@ -81,17 +134,27 @@ public class DatabaseIO {
 
         System.out.println(orders);
 
-        return orders;
 
     }
-    private OrderItems getOrderItems(String orderNo){
-        final String orderDetailsQuery = "select * from orderDetails where orderNo=(?)";
-        OrderItems orderDetails = new OrderItems();
-        try{
-            connect();
 
+    /**
+     * This function gets the order items of a specific orders by connecting
+     * to the database and using a query to get the items from the orderDetails
+     * database for a specific order
+     * @param orderID
+     * @return an OrderDetails object which will be used later to store all
+     * the order details of all the orders in a specific date
+     */
+    
+    
+    private OrderDetails storeOrderDetails(String orderID){
+        final String orderDetailsQuery = "select * from orderDetails where orderNo=(?)";
+        OrderDetails orderDetails = new OrderDetails();
+        try{
+
+            connect();
             PreparedStatement psOrderDetailsQuery = conn.prepareStatement(orderDetailsQuery);
-            psOrderDetailsQuery.setString(1,orderNo);
+            psOrderDetailsQuery.setString(1,orderID);
 
             ResultSet rs = psOrderDetailsQuery.executeQuery();
             ArrayList<String> items = new ArrayList<>();
@@ -100,7 +163,7 @@ public class DatabaseIO {
                 items.add(item);
             }
 
-            orderDetails.setOrderNo(orderNo);
+            orderDetails.setOrderNo(orderID);
             orderDetails.setItems(items);
 
 
@@ -111,18 +174,33 @@ public class DatabaseIO {
         return orderDetails;
     }
 
+    /**
+     * This function get all the orders stored from the previous "storeOrders"
+     * function, and runs the "storeOrderDetails" function for each order
+     * to get the order details for all the orders in a given date
+     */
 
+    public void storeOrderDetails(){
 
-    public HashMap storeOrderDetails(){
-
-        System.out.println(orders);
+//        System.out.println(orders);
         for (String order: orders.keySet()){
-            orderItems.put(order , getOrderItems(order));
+            orderDetails.put(order, storeOrderDetails(order));
         }
-
-        return orderItems;
     }
 
+    /**
+     * This function creates a DELIVERIES database, it first connects to the
+     * database server, it then creates a database named DELIVERIES, it checks
+     * it a database of the same name already exists, if it does, it will drop it
+     * and create a new one.
+     *
+     * The function then takes in an arraylist of deliveries as a Delivery Object
+     * and adds the data to each row using the requirements provided in the project
+     * description
+     *
+     * The function then disconnects from the server after creating the database
+     * @param deliveries ArrayList of Delivery Object
+     */
 
     //creating database
     public void creatingDeliveriesDatabase(ArrayList<Delivery> deliveries){
@@ -160,6 +238,21 @@ public class DatabaseIO {
             e.printStackTrace();
         }
     }
+
+    /**
+     * This function creates a FLIGHTPATH database, it first connects to the
+     * database server, it then creates a database named FLIGHTPATH, it checks
+     * it a database of the same name already exists, if it does, it will drop it
+     * and create a new one.
+     *
+     * The function then takes in an arraylist of flightpaths as a Flightpath Object
+     * and adds the data to each row using the requirements provided in the project
+     * description
+     *
+     * The function then disconnects from the server after creating the database
+     * @param flightpaths ArrayList of Flightpath Object
+     */
+
     public void creatingFlightpathDatabase(ArrayList<Flightpath> flightpaths){
         try{
             connect();

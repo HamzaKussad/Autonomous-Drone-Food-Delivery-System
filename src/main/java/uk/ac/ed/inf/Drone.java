@@ -44,7 +44,7 @@ public class Drone {
 
     public FeatureCollection getPlan(){
 
-
+        System.out.println("Size: " + orderList.length);
         System.out.println("orderlist:" + orderList);
         String order[] = {"177055e5","406d9b98"};
         completePlan = planRoute();
@@ -181,7 +181,7 @@ public class Drone {
     public ArrayList<Delivery> deliveryDataForDatabase() {
         ArrayList<Delivery> deliveries = new ArrayList<>();
         HashMap<String,Order> orderList1 = DatabaseIO.getOrders();
-        HashMap<String,OrderItems> orderItems = DatabaseIO.getOrderItems();
+        HashMap<String, OrderDetails> orderItems = DatabaseIO.getOrderDetails();
         for(String order: journey){
             Delivery delivery = new Delivery();
             delivery.orderNo = order;
@@ -215,13 +215,14 @@ public class Drone {
 
 
     public double percentageMoney (){
-        HashMap<String,OrderItems> orderItems = DatabaseIO.getOrderItems();
+        HashMap<String, OrderDetails> orderItems = DatabaseIO.getOrderDetails();
         double actualDelivered = 0;
         double allOrders = 0;
 
         for (String order: journey){
             allOrders+= Menus.getDeliveryCost(orderItems.get(order).getItems());
         }
+        System.out.println(allOrders);
         getPlan();
         for (String order: journey){
             actualDelivered+= Menus.getDeliveryCost(orderItems.get(order).getItems());

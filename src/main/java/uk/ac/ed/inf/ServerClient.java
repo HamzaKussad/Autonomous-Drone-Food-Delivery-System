@@ -24,6 +24,8 @@ public class ServerClient {
     public String name;
     public String port;
 
+
+
     public ServerClient(String name, String port){
         this.name = name;
         this.port = port;

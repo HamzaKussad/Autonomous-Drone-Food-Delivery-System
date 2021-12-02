@@ -64,7 +64,7 @@ public class TwoOpt implements JourneyPlanner {
 
     private double getOrderHeuristic(String currentOrder, String nextOrder){
         HashMap<String,Order> orderList = DatabaseIO.getOrders();
-        HashMap<String,OrderItems> orderItems = DatabaseIO.getOrderItems();
+        HashMap<String, OrderDetails> orderItems = DatabaseIO.getOrderDetails();
         orderList.get(currentOrder);
 
         HashMap<String,LongLat> itemShops = new HashMap<>();
