@@ -184,9 +184,9 @@ public class Drone {
         HashMap<String, OrderDetails> orderItems = DatabaseIO.getOrderDetails();
         for(String order: journey){
             Delivery delivery = new Delivery();
-            delivery.orderNo = order;
-            delivery.costInPence = Menus.getDeliveryCost(orderItems.get(order).getItems());
-            delivery.deliveredTo = orderList1.get(order).getDeliverToW3W();
+            delivery.setOrderNo(order);
+            delivery.setDeliveredTo(orderList1.get(order).getDeliverToW3W());
+            delivery.setCostInPence(Menus.getDeliveryCost(orderItems.get(order).getItems()));
             deliveries.add(delivery);
         }
         return deliveries;

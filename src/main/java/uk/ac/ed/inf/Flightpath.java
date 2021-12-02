@@ -1,5 +1,10 @@
 package uk.ac.ed.inf;
 
+/**
+ * Class that represents the Flightpath Object
+ * Class has been encapsulated
+ */
+
 public class Flightpath {
     private String orderNo;
     private double fromLongitude;

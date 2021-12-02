@@ -19,12 +19,22 @@ import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Point;
 import org.mortbay.util.IO;
 
+/**
+ * A serverClient class that is responsible for getting information
+ * from the Webserver
+ */
+
 public class ServerClient {
 
     public String name;
     public String port;
 
 
+    /**
+     * Creates a ServerClient instance with
+     * a name and port that will be used for all the
+     * classes that extend from this class
+     */
 
     public ServerClient(String name, String port){
         this.name = name;
@@ -32,29 +42,25 @@ public class ServerClient {
 
     }
 
+    /** Static instance of the HttpClient as it's a heavy object */
+
     private static final HttpClient client = HttpClient.newHttpClient();
 
 
     /**
-     * Helper function for http request to access the
-     * json file from the webserver and store it
-     * in a responce
-     * @param name of website
-     * @param port of website
-     * @return http response
+     * Performs a Http request to get data from the server
+     * depending on the endpoint given to the function
+     * @param name of the Webserver
+     * @param port of the Webserver
+     * @param endpoint the endpoint for the required data
+     * @return a response that will contains the data from the request
      * @throws IOException
      * @throws InterruptedException
      */
 
     public static HttpResponse<String> doGetRequest(String name, String port, String endpoint) throws IOException, InterruptedException {
-        HttpResponse<String> response = null;
-        try{
             HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://" + name + ":" + port+ endpoint )).build();
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        }catch (IOException | InterruptedException e){
-            e.printStackTrace();
-        }
-
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         return response;
     }
 

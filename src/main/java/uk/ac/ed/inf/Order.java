@@ -2,6 +2,11 @@ package uk.ac.ed.inf;
 
 import java.sql.*;
 
+/**
+ * A class that represents the Order Object
+ * The class has been encapsulated with setters and getters
+ */
+
 public class Order {
     private String orderNo;
     private Date deliveryDate;

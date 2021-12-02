@@ -225,9 +225,9 @@ public class DatabaseIO {
                     "insert into deliveries values (?,?,?)");
 
             for(Delivery d : deliveries){
-                psDeliveries.setString(1, d.orderNo);
-                psDeliveries.setString(2,d.deliveredTo);
-                psDeliveries.setInt(3, d.costInPence);
+                psDeliveries.setString(1, d.getOrderNo());
+                psDeliveries.setString(2,d.getDeliveredTo());
+                psDeliveries.setInt(3, d.getCostInPence());
 
                 psDeliveries.execute();
             }

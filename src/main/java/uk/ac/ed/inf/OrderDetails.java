@@ -2,6 +2,11 @@ package uk.ac.ed.inf;
 
 import java.util.ArrayList;
 
+/**
+ * A class that represents the OrderDetails class
+ * The class has been encapsulated with getters and setters
+ */
+
 public class OrderDetails {
     private String orderNo;
     private ArrayList<String> items;
