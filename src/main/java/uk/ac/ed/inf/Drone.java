@@ -70,7 +70,7 @@ public class Drone {
         ArrayList<LongLat> coords;
 
         if(journey.size() == 1) {
-            coords = orderPlanner.orderToPathTest(journey.get(0));
+            coords = orderPlanner.orderToStops(journey.get(0));
             Node target = flyFromAppleton(completePlan, appleton, coords);
             target = orderMoves(completePlan, coords, 0, target);
             returnBackToAppleton(completePlan, appleton, target);
@@ -78,11 +78,11 @@ public class Drone {
         }
 
 
-        coords = orderPlanner.orderToPathTest(journey.get(0));
+        coords = orderPlanner.orderToStops(journey.get(0));
         Node target = flyFromAppleton(completePlan, appleton, coords);
         target = orderMoves(completePlan, coords, 0, target);
         for(int order=1; order<journey.size(); order++){
-            coords = orderPlanner.orderToPathTest(journey.get(order));
+            coords = orderPlanner.orderToStops(journey.get(order));
             target = orderMoves(completePlan, coords, order, target);
         }
         returnBackToAppleton(completePlan, appleton, target);
@@ -95,7 +95,7 @@ public class Drone {
 
     private Node orderMoves(ArrayList<LongLat> completePlan, ArrayList<LongLat> coords, int i, Node target) {
         for(int j = 0; j< coords.size() ; j++) {
-            LongLat startLocation = new LongLat(target.longitude, target.latitude);
+            LongLat startLocation = new LongLat(target.getLongitude(), target.getLatitude());
             LongLat targetLocation = coords.get(j);
             target = (pathFinder.getPath(startLocation.toNode(), targetLocation.toNode()));
             ArrayList<LongLat> path = pathFinder.nodeToList(target);
@@ -138,7 +138,7 @@ public class Drone {
     private void returnBackToAppleton(ArrayList<LongLat> completePlan, LongLat appleton, Node pathNode) {
         ArrayList<LongLat> path;
         ArrayList<Flightpath> flightpaths;
-        LongLat last = new LongLat(pathNode.longitude, pathNode.latitude);
+        LongLat last = new LongLat(pathNode.getLongitude(), pathNode.getLatitude());
 
         pathNode = (pathFinder.getPath(last.toNode(), appleton.toNode()));
 
@@ -161,7 +161,7 @@ public class Drone {
         ArrayList<Point> points = new ArrayList<>();
         for(LongLat route: routes){
 
-            points.add(Point.fromLngLat(route.longitude,route.latitude));
+            points.add(Point.fromLngLat(route.getLongitude(), route.getLatitude()));
         }
         var featureLineString =  Feature.fromGeometry(LineString.fromLngLats(points));
         return FeatureCollection.fromFeature(featureLineString);

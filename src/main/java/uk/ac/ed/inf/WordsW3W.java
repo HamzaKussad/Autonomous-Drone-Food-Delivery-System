@@ -40,7 +40,7 @@ public class WordsW3W extends ServerClient{
         }catch (IOException | InterruptedException e){
             e.printStackTrace();
         }
-        LongLat coords = new LongLat(details.coordinates.lng,details.coordinates.lat);
+        LongLat coords = new LongLat(details.getCoordinates().getLng(),details.getCoordinates().getLat());
         return coords;
 
     }

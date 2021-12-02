@@ -3,33 +3,38 @@ package uk.ac.ed.inf;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * A class to that is responsible to implement the algorithm that
+ * gets the optimum ordering of the shops that the drone should fly to
+ */
+
 public class OrderPlanner {
 
-    public ArrayList<LongLat> orderToPathTest(String order){
+    /**
+     * This function takes in an order and return the LongLat
+     * locations in a specific ordering which corresponds to the
+     * restaurants and the drop-off location at the end
+     * @param order orderID
+     * @return ArrayList of LongLat coordinates
+     */
+
+    public ArrayList<LongLat> orderToStops(String order){
         ArrayList<LongLat> coords = new ArrayList<>();
         HashMap<String,Order> ordersDB = DatabaseIO.getOrders();
-        LongLat appletone = new LongLat(-3.186874,55.944494 );
-
         HashMap<String, OrderDetails> orderItems = DatabaseIO.getOrderDetails();
-        ArrayList<LongLat> itemShops;
         HashMap<String,LongLat> itemShopsNoDuplicate = new HashMap<>();
 
-
         for(String item : orderItems.get(order).getItems() ){
-//            System.out.println(order);
-//            System.out.println(item);
-            String w3wRestaurantLocation = Menus.getW3WOfMenuItem(item);
-//            System.out.println( w3wRestaurantLocation);
-            LongLat restaurantLocation = Menus.getLocationOfMenuItem(item);
 
+            String w3wRestaurantLocation = Menus.getW3WOfMenuItem(item);
+            LongLat restaurantLocation = Menus.getLocationOfMenuItem(item);
             itemShopsNoDuplicate.put(w3wRestaurantLocation, restaurantLocation);
+
         }
         LongLat dropOffLocation = (ordersDB.get(order).getDeliverTo());
-//        System.out.println(dropOffLocation);
-        itemShops =  sortRestaurantPickups( itemShopsNoDuplicate, dropOffLocation);
-//        System.out.println(itemShops.size());
-//
-//        System.out.println(itemShops.size());
+
+        ArrayList<LongLat> itemShops =  sortRestaurantPickups( itemShopsNoDuplicate, dropOffLocation);
+
         for(LongLat coord :  itemShops){
             coords.add(coord);
         }
@@ -39,26 +44,26 @@ public class OrderPlanner {
     return coords;
     }
 
+    /**
+     * Helper function to sort the restaurants in a specific order
+     * depending on the distance from the drop-off location
+     * @param itemShopsNoDuplicate Hashmap with W3W as key and its the corresponding LongLat as value
+     * @param dropOffLocation drop-off location of the order
+     * @return restaurants LongLat locations sorted
+     */
 
     private ArrayList<LongLat> sortRestaurantPickups( HashMap<String, LongLat> itemShopsNoDuplicate, LongLat dropOffLocation) {
         ArrayList<LongLat> itemShops = new ArrayList<>();
         ArrayList<LongLat> locations = new ArrayList<>();
-        double dist = Double.POSITIVE_INFINITY;
+
         for(String restaurantLocation: itemShopsNoDuplicate.keySet()){
             locations.add(itemShopsNoDuplicate.get(restaurantLocation));
-//            if(dropOffLocation.distanceTo(itemShopsNoDuplicate.get(restaurantLocation)) < dist){
-//                dist = dropOffLocation.distanceTo(itemShopsNoDuplicate.get(restaurantLocation));
-//                itemShops.add(0,itemShopsNoDuplicate.get(restaurantLocation));
-//            }else{
-//                itemShops.add(itemShopsNoDuplicate.get(restaurantLocation));
-//            }
         }
 
         if(locations.size()>1){
             double distA = locations.get(0).distanceTo(locations.get(1)) + locations.get(1).distanceTo(dropOffLocation);
             double distB = locations.get(1).distanceTo(locations.get(0)) + locations.get(0).distanceTo(dropOffLocation);
-//            System.out.println(distA);
-//            System.out.println(distB);
+
             if(distA>distB){
                 itemShops.add(locations.get(1));
                 itemShops.add(locations.get(0));
@@ -70,9 +75,6 @@ public class OrderPlanner {
         }else{
             itemShops.add(locations.get(0));
         }
-
-
-//        System.out.println(itemShops);
 
         return itemShops;
 

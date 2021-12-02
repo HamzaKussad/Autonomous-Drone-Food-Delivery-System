@@ -55,8 +55,8 @@ public class App {
 
 
         LongLat test = new LongLat(-3.1907899184716935,55.94398750691308);
-        System.out.println(test.nextPosition(320).longitude);
-        System.out.println(test.nextPosition(320).latitude);
+        System.out.println(test.nextPosition(320).getLongitude());
+        System.out.println(test.nextPosition(320).getLatitude());
 
 
 

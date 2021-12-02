@@ -36,7 +36,7 @@ public class Node extends LongLat implements Comparable<Node>{
      * @return LongLat
      */
     public LongLat toLongLat(){
-        return new LongLat(this.longitude,this.latitude);
+        return new LongLat(this.getLongitude(),this.getLatitude());
     }
 
     /**
@@ -60,6 +60,6 @@ public class Node extends LongLat implements Comparable<Node>{
     @Override
     public Node nextPosition(int facingAngle){
         LongLat coord = super.nextPosition(facingAngle);
-        return new Node(coord.longitude,coord.latitude);
+        return new Node(coord.getLongitude(),coord.getLatitude());
     }
 }

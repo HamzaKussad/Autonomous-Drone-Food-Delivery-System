@@ -33,7 +33,7 @@ public class AStar implements PathFInder{
 
                 var point = path.nextPosition(angle);
                 point.angle = angle;
-                Line2D possibleMove = new Line2D.Double(path.longitude, path.latitude,point.longitude,point.latitude);
+                Line2D possibleMove = new Line2D.Double(path.getLongitude(), path.getLatitude(),point.getLongitude(),point.getLatitude());
                 if(!NoFlyZone.intersect(possibleMove) && point.isConfined()){
 
                     if(nodes.containsKey(point.toLongLat())){
@@ -102,21 +102,21 @@ public class AStar implements PathFInder{
 
         for(int i=0; i< nodes.size()-1; i++){
             Flightpath flightpath = new Flightpath();
-            flightpath.setFromLatitude(nodes.get(i).latitude);
-            flightpath.setFromLongitude(nodes.get(i).longitude);
+            flightpath.setFromLatitude(nodes.get(i).getLatitude());
+            flightpath.setFromLongitude(nodes.get(i).getLongitude());
             flightpath.setAngle(nodes.get(i+1).angle);
-            flightpath.setToLatitude(nodes.get(i+1).latitude);
-            flightpath.setToLongitude(nodes.get(i+1).longitude);
+            flightpath.setToLatitude(nodes.get(i+1).getLatitude());
+            flightpath.setToLongitude(nodes.get(i+1).getLongitude());
             flightpaths.add(flightpath);
 
         }
         Node last = nodes.get(nodes.size()-1);
         Flightpath flightpath = new Flightpath();
-        flightpath.setFromLatitude(last.latitude);
-        flightpath.setFromLongitude(last.longitude);
+        flightpath.setFromLatitude(last.getLatitude());
+        flightpath.setFromLongitude(last.getLongitude());
         flightpath.setAngle(-999);
-        flightpath.setToLatitude(last.latitude);
-        flightpath.setToLongitude(last.longitude);
+        flightpath.setToLatitude(last.getLatitude());
+        flightpath.setToLongitude(last.getLongitude());
         flightpaths.add(flightpath);
 
         return flightpaths;

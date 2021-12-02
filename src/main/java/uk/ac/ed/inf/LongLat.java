@@ -7,8 +7,8 @@ import java.awt.geom.Line2D;
  * using Latitude and Longitude
  */
 public class LongLat {
-    public double longitude;
-    public double latitude;
+    private double longitude;
+    private double latitude;
 
     /**
      * Creates a LongLat instance
@@ -135,7 +135,13 @@ public class LongLat {
         return new Node(this.longitude,this.latitude);
     }
 
+    public double getLatitude() {
+        return latitude;
+    }
 
+    public double getLongitude() {
+        return longitude;
+    }
     //Helper functions
 
     /**

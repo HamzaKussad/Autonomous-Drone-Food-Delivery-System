@@ -2,12 +2,22 @@ package uk.ac.ed.inf;
 
 import java.util.*;
 
+/**
+ * TwoOpt algorithm that could be used to find wanted journey
+ * depending on a certain heuristic define below
+ */
+
 public class TwoOpt implements JourneyPlanner {
     //used from
     //https://www.technical-recipes.com/2017/applying-the-2-opt-algorithm-to-traveling-salesman-problems-in-java/
 
     OrderPlanner orderPlanner = new OrderPlanner();
     @Override
+
+    /**
+     * This function performs the TwoOpt algorithm to
+     * order the orders using a specific heurtistic
+     */
     public ArrayList<String> planJourney(String[] orders) {
 
         String[] newJourney = orders.clone();
@@ -20,7 +30,7 @@ public class TwoOpt implements JourneyPlanner {
                     TwoOptSwap(i, j, orders, newJourney);
                     double newDist = getJourneyCost(newJourney);
 
-                    if (newDist > currentBestDist) {
+                    if (newDist < currentBestDist) {
                         iterations = 0;
                         orders =  newJourney.clone();
 
@@ -35,7 +45,13 @@ public class TwoOpt implements JourneyPlanner {
         return new ArrayList<>(Arrays.asList(orders));
     }
 
-
+    /**
+     * TwoOpt swap
+     * @param i swaps i with j
+     * @param j swaps j with i
+     * @param journey the current journey
+     * @param newJourney the new journey after swap is done
+     */
 
     private void TwoOptSwap(int i, int j, String[] journey, String[] newJourney) {
         for(int c = 0; c<= i-1; ++c){
@@ -52,6 +68,12 @@ public class TwoOpt implements JourneyPlanner {
 
     }
 
+    /**
+     * helper function to calculate the total cost of the journey
+     * using the heuristic
+     * @param orders list of orders
+     * @return the cost of this journey
+     */
 
     private double getJourneyCost(String[] orders){
         double totalCost = 0;
@@ -61,32 +83,34 @@ public class TwoOpt implements JourneyPlanner {
         return totalCost;
     }
 
+    /**
+     * A heuristic to be used when comparing the costs of the different Journeys
+     * It basically calculates the distance done by and order plus the
+     * distance from the previous dropoff to the first shop
+     * Then calculates the distance/2*price
+     * @param previousOrder previous order
+     * @param currentOrder the current order
+     * @return distance/2*price
+     */
 
-    private double getOrderHeuristic(String currentOrder, String nextOrder){
+    private double getOrderHeuristic(String previousOrder, String currentOrder){
         HashMap<String,Order> orderList = DatabaseIO.getOrders();
         HashMap<String, OrderDetails> orderItems = DatabaseIO.getOrderDetails();
-        orderList.get(currentOrder);
+        orderList.get(previousOrder);
 
-        HashMap<String,LongLat> itemShops = new HashMap<>();
-        for(String item :orderItems.get(nextOrder).getItems() ){
-            String w3wRestautantLocation = Menus.getW3WOfMenuItem(item);
-            LongLat restaurantLocation = Menus.getLocationOfMenuItem(item);
-            itemShops.put(w3wRestautantLocation, restaurantLocation);
+        ArrayList<LongLat> stops = orderPlanner.orderToStops(currentOrder);
+
+        LongLat dropOffLocation = orderList.get(previousOrder).getDeliverTo();
+
+        double totalDist = dropOffLocation.distanceTo(stops.get(0));
+
+        for (int i = 0; i< stops.size()-1; i++){
+            totalDist += stops.get(i).distanceTo(stops.get(i+1));
         }
 
-        double totalDist = 0.0;
+        int price =  Menus.getDeliveryCost(orderItems.get(currentOrder).getItems());
 
-        totalDist += orderList.get(currentOrder).getDeliverTo().distanceTo(itemShops.get(0));
-
-        for(int i=0; i< itemShops.size()-1;i++){
-            totalDist+= itemShops.get(i).distanceTo(itemShops.get(i+1));
-        }
-
-        totalDist+= itemShops.get(itemShops.size()-1).distanceTo(orderList.get(nextOrder).getDeliverTo());
-
-        int price =  Menus.getDeliveryCost(orderItems.get(nextOrder).getItems());
-
-        return totalDist/price;
+        return (totalDist)/(price*2);
 
     }
 
