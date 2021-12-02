@@ -1,11 +1,7 @@
 package uk.ac.ed.inf;
 
-import com.mapbox.geojson.LineString;
-import com.mapbox.geojson.Point;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.sql.Date;
 
 /**
@@ -23,29 +19,27 @@ public class App {
         webServerPort = args[3];
         databasePort = args[4];
 
-        String dateString = day + "-"+month +"-" + year + "";
-
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-        long milliseconds =  sdf.parse(dateString).getTime();
+        long milliseconds = dateFormatter(day, month, year);
 
         Date date = new Date(milliseconds);
-        System.out.println(date);
 
-        ServerClient client = new ServerClient("localhost", webServerPort);
         DatabaseIO orders = new DatabaseIO("localhost", databasePort);
+        Menus menus = new Menus("localhost", webServerPort);
+        NoFlyZone noFlyZone = new NoFlyZone("localhost", webServerPort);
+
         orders.storeOrders(date);
         orders.storeOrderDetails();
-        Menus menus = new Menus("localhost", webServerPort);
+
         menus.storeItems();
-        NoFlyZone noFlyZone = new NoFlyZone("localhost", "9898");
+
         noFlyZone.getNoFlyZone();
 
-//        System.out.println(DatabaseIO.getOrders().size());
-        AStar finder = new AStar();
+        PathFinder pathFinder = new AStar();
         JourneyPlanner journeyPlanner = new CostPriority();
+        OrderPlanner orderPlanner = new OrderPlanner();
 
+        Drone drone = new Drone(pathFinder, journeyPlanner, orderPlanner);
 
-        Drone drone = new Drone(date,finder,journeyPlanner,client,orders);
         System.out.println( drone.percentageMoney());
 
         orders.creatingDeliveriesDatabase(drone.deliveryDataForDatabase());
@@ -60,6 +54,14 @@ public class App {
 
 
 
+    }
+
+    private static long dateFormatter(String day, String month, String year) throws ParseException {
+        String dateString = day + "-"+ month +"-" + year + "";
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+        long milliseconds =  sdf.parse(dateString).getTime();
+        return milliseconds;
     }
 
 

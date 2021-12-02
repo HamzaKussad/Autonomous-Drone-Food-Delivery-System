@@ -5,6 +5,6 @@ package uk.ac.ed.inf;
  * The optimum path between 2 points
  */
 
-public interface PathFInder {
+public interface PathFinder {
     public Node getPath(Node start, Node target);
 }

@@ -7,20 +7,22 @@ import java.util.*;
 /**
  * A class that implements the Astar path finding algorithm
  */
-public class AStar implements PathFInder{
-    @Override
+public class AStar implements PathFinder {
 
     /**
-     * The main function of the class,
+     * AStar algorithm to calculate the path between 2 points
+     * @param start starting node
+     * @param target target node
+     * @return the path between the start and target as a Node Object
      */
+
+    @Override
     public Node getPath(Node start, Node target){
         PriorityQueue<Node> openList = new PriorityQueue<>();
         PriorityQueue<Node> closedList = new PriorityQueue<>();
-        HashMap<LongLat, Node> nodes = new HashMap<>();
 
         start.g = 0;
         start.f = start.g + 0.75*start.chebyshevDist(target) + 1.6*start.distanceTo(target);
-
 
         openList.add(start);
         while (!openList.isEmpty()){
@@ -30,17 +32,10 @@ public class AStar implements PathFInder{
             }
 
             for (int angle =0; angle<360; angle+=60){
-
                 var point = path.nextPosition(angle);
                 point.angle = angle;
                 Line2D possibleMove = new Line2D.Double(path.getLongitude(), path.getLatitude(),point.getLongitude(),point.getLatitude());
                 if(!NoFlyZone.intersect(possibleMove) && point.isConfined()){
-
-                    if(nodes.containsKey(point.toLongLat())){
-                        point = nodes.get(point.toLongLat());
-                    }else {
-                        nodes.put(point.toLongLat(),point);
-                    }
 
                     double actualDistMoved = path.g + Constants.MOVE_DIST;
                     if(!openList.contains(point) && !closedList.contains(point)){
@@ -74,51 +69,6 @@ public class AStar implements PathFInder{
      * @return ArrayList of LongLats
      */
 
-    public ArrayList<LongLat> nodeToList(Node path){
-        ArrayList<LongLat> coords = new ArrayList<>();
-        coords.add(path.toLongLat());
-        while (path.parent != null){
-            path = path.parent;
-            coords.add(path.toLongLat());
-        }
 
-        Collections.reverse(coords);
-        return coords;
-    }
 
-   //look into to fix or move to Drone
-
-    public ArrayList<Flightpath> nodeToFlightpath(Node path){
-        ArrayList<Flightpath> flightpaths = new ArrayList<>();
-        ArrayList<Node> nodes = new ArrayList<>();
-        nodes.add(path);
-        while (path.parent != null){
-            path = path.parent;
-            nodes.add(path);
-
-//            System.out.println(path.angle);
-        }
-        Collections.reverse(nodes);
-
-        for(int i=0; i< nodes.size()-1; i++){
-            Flightpath flightpath = new Flightpath();
-            flightpath.setFromLatitude(nodes.get(i).getLatitude());
-            flightpath.setFromLongitude(nodes.get(i).getLongitude());
-            flightpath.setAngle(nodes.get(i+1).angle);
-            flightpath.setToLatitude(nodes.get(i+1).getLatitude());
-            flightpath.setToLongitude(nodes.get(i+1).getLongitude());
-            flightpaths.add(flightpath);
-
-        }
-        Node last = nodes.get(nodes.size()-1);
-        Flightpath flightpath = new Flightpath();
-        flightpath.setFromLatitude(last.getLatitude());
-        flightpath.setFromLongitude(last.getLongitude());
-        flightpath.setAngle(-999);
-        flightpath.setToLatitude(last.getLatitude());
-        flightpath.setToLongitude(last.getLongitude());
-        flightpaths.add(flightpath);
-
-        return flightpaths;
-    }
 }
