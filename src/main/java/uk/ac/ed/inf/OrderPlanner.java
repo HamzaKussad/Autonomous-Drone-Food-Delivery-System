@@ -8,7 +8,7 @@ import java.util.HashMap;
  * gets the optimum ordering of the shops that the drone should fly to
  */
 
-public class OrderPlanner {
+public class OrderPlanner implements OrderPlannerAlgorithm {
 
     /**
      * This function takes in an order and return the LongLat

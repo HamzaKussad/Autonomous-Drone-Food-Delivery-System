@@ -61,14 +61,6 @@ public class AStar implements PathFinder {
         }
         return null;
     }
-    /**
-     * This function takes the result node and breaks it down to an
-     * array of Coordinates with each LongLat being a move away from
-     * the previous one
-     * @param path Result node of the Astar algorithm
-     * @return ArrayList of LongLats
-     */
-
 
 
 }

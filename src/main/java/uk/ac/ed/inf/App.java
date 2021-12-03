@@ -36,7 +36,7 @@ public class App {
 
         PathFinder pathFinder = new AStar();
         JourneyPlanner journeyPlanner = new CostPriority();
-        OrderPlanner orderPlanner = new OrderPlanner();
+        OrderPlannerAlgorithm orderPlanner = new OrderPlanner();
 
         Drone drone = new Drone(pathFinder, journeyPlanner, orderPlanner);
 

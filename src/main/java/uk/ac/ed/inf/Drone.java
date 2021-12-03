@@ -23,7 +23,7 @@ public class Drone {
     /** Path finding Algorithm instance*/
     private PathFinder pathFinder;
     /** Order planning algorithm instance */
-    private OrderPlanner orderPlanner;
+    private OrderPlannerAlgorithm orderPlanner;
     /** Journey planning algorithm instance */
     private JourneyPlanner journeyPlanner;
 
@@ -33,7 +33,7 @@ public class Drone {
      * @param journeyPlanner Order planning algorithm
      * @param orderPlanner Journey planning algorithm
      */
-    public Drone( PathFinder pathFinder, JourneyPlanner journeyPlanner, OrderPlanner orderPlanner){
+    public Drone( PathFinder pathFinder, JourneyPlanner journeyPlanner, OrderPlannerAlgorithm orderPlanner){
 
         this.pathFinder = pathFinder;
         this.orderPlanner = orderPlanner;
@@ -215,7 +215,7 @@ public class Drone {
     }
 
     /**
-     * This function takes a Node and returns a list of nodes
+     * This function takes a Node and breaks it down into a list of nodes
      * where each node contains the LongLat position and the angle
      * the drone was facing at the time
      *
