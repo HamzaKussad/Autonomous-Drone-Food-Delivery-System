@@ -48,9 +48,9 @@ public class App {
         drone.outputGeoJsonFolder(day,month,year);
 
 
-        LongLat test = new LongLat(-3.1907899184716935,55.94398750691308);
-        System.out.println(test.nextPosition(320).getLongitude());
-        System.out.println(test.nextPosition(320).getLatitude());
+        LongLat test = new LongLat(-3.1865739999999994,55.94475380762113);
+        System.out.println(test.nextPosition(240).getLongitude());
+        System.out.println(test.nextPosition(240).getLatitude());
 
 
 

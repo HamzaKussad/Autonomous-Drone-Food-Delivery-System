@@ -7,7 +7,6 @@ import com.mapbox.geojson.Point;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -44,12 +43,20 @@ public class Drone {
 
     }
 
-    /**  */
+    /** ArrayList that store the complete plan as LongLat array to use in GeoJSON file */
     private ArrayList<LongLat> completePlan = new ArrayList<>();
+    /** ArrayList that store the complete plan as Flightpath array to use in FLIGHTPATH database */
     private ArrayList<Flightpath> completeFlightpath = new ArrayList<>();
+    /** Arraylist that stores the ordered journey using the orderIDs */
     private ArrayList<String> journey = new ArrayList<>();
 
-    public FeatureCollection getPlan(){
+
+    /**
+     * This function executes the plan of the drone
+     * and fills up the completePlan array to be used
+     * for the outputs.
+     */
+    public void executePlan(){
         journey = journeyPlanner.planJourney(DatabaseIO.getOrderIds());
         completePlan = planRoute();
         while(MOVES <=0){
@@ -59,12 +66,18 @@ public class Drone {
             completePlan = planRoute();
 
         }
-
         System.out.println( MOVES);
         System.out.println(toFeatureCollection(completePlan).toJson());
-        return toFeatureCollection(completePlan);
-
     }
+
+    /**
+     * This function output the drone's path as a GeoJSON file using the
+     * date that the program is run on, and creates a folder
+     * if the format of drone-DD-MM-YYYY.geojson
+     * @param day
+     * @param month
+     * @param year
+     */
 
     public void outputGeoJsonFolder(String day, String month, String year) {
         try{
@@ -76,6 +89,13 @@ public class Drone {
             e.printStackTrace();
         }
     }
+
+    /**
+     * This function creates a Delivery Arraylist that will be used
+     * to create a DELIVERIES table in the database.
+     * Delivery information is collected and stored.
+     * @return Arraylist of the Delivery Object
+     */
 
     public ArrayList<Delivery> deliveryDataForDatabase() {
         ArrayList<Delivery> deliveries = new ArrayList<>();
@@ -91,64 +111,147 @@ public class Drone {
         return deliveries;
     }
 
+    /**
+     * gets the completeFlightpath of the journey to be used
+     * to create a FLIGHTPATH table in the database
+     * @return Arraylist of the Flightpath Object
+     */
+
+    public ArrayList<Flightpath> flightpathsDataForDatabase(){
+        return completeFlightpath;
+    }
+
+    //--------Functions for route planning with helpers
+
+    /**
+     * returns the full plan for all the orders in the journey
+     * starts from appleton tower and ends at appleton tower always
+     * @return Arraylist of LongLat that represents the complete plan
+     */
+
     private ArrayList<LongLat> planRoute() {
-        ArrayList<LongLat> completePlan = new ArrayList<>();
 
         int firstOrder = 0;
         int lastOrder = journey.size()-1;
 
-        ArrayList<LongLat> coords = orderPlanner.orderToStops(journey.get(firstOrder));
+        ArrayList<LongLat> stops = orderPlanner.orderToStops(journey.get(firstOrder));
 
-        Node target = flyFromAppleton(completePlan, Constants.appletonTower, firstOrder, coords);
-        target = orderMoves(completePlan, coords, firstOrder, target);
+        Node target = flyFromAppleton(firstOrder, stops);
+        target = orderMoves( stops, firstOrder, target);
 
         for(int order=1; order<journey.size(); order++){
-            coords = orderPlanner.orderToStops(journey.get(order));
-            target = orderMoves(completePlan, coords, order, target);
+            stops = orderPlanner.orderToStops(journey.get(order));
+            target = orderMoves( stops, order, target);
         }
-        returnBackToAppleton(completePlan, Constants.appletonTower, lastOrder , target);
+        returnBackToAppleton(lastOrder , target);
 
         return completePlan;
     }
 
-    private Node orderMoves(ArrayList<LongLat> completePlan, ArrayList<LongLat> coords, int order, Node target) {
-        for(int j = 0; j< coords.size() ; j++) {
+    /**
+     * This function computes the moves between each stop in an order.
+     * It loops through all the orders and uses the target location achieved
+     * from previous order as a starting location and so on, and uses helper functions
+     * to collect the moves and the flight paths
+     *
+     * @param stops Arraylist of stops in an order represented as LongLat
+     * @param order the corresponding position of an order in the journey
+     * @param target the target location of the pathfinding algorithm
+     * @return the last location the drone visited (which is closeTo a dropoff location)
+     */
+
+    private Node orderMoves( ArrayList<LongLat> stops, int order, Node target) {
+        for(int j = 0; j< stops.size() ; j++) {
 
             LongLat startLocation = new LongLat(target.getLongitude(), target.getLatitude());
-            LongLat targetLocation = coords.get(j);
+            LongLat targetLocation = stops.get(j);
 
             target = (pathFinder.getPath(startLocation.toNode(), targetLocation.toNode()));
 
-            collectMoves(completePlan, target);
+            collectMoves( target);
             collectFlightpaths(target,order);
 
         }
         return target;
     }
 
-    private Node flyFromAppleton(ArrayList<LongLat> completePlan, LongLat appleton,int order, ArrayList<LongLat> coords) {
+    /**
+     * A function that is responsible for the first path of the drone,
+     * which is flying from appleton and finishing the first order
+     *
+     * @param stops Arraylist of stops in an order represented as LongLat
+     * @param order the corresponding position of an order in the journey which is the first
+     *              stop in the journey
+     *
+     * @return the last location the drone visited (which is closeTo a dropoff location of the order)
+     */
 
-        Node target = pathFinder.getPath(appleton.toNode(), (coords.get(0)).toNode());
+    private Node flyFromAppleton( int order, ArrayList<LongLat> stops) {
 
-        collectMoves(completePlan, target);
+        Node target = pathFinder.getPath(Constants.appletonTower.toNode(), (stops.get(0)).toNode());
+
+        collectMoves(target);
         collectFlightpaths(target,order);
 
         return target;
     }
 
-    private void returnBackToAppleton(ArrayList<LongLat> completePlan, LongLat appleton, int order, Node target) {
+    /**
+     * This function is responsible to return the drone back to Appleton tower
+     *
+     * @param order the corresponding position of an order in the journey which is the last
+     *              stop in the journey
+     * @param target the target location of the pathfinding algorithm which is the last stop
+     *               in this case
+     */
+
+    private void returnBackToAppleton( int order, Node target) {
 
         LongLat last = new LongLat(target.getLongitude(), target.getLatitude());
-        target = (pathFinder.getPath(last.toNode(), appleton.toNode()));
+        target = (pathFinder.getPath(last.toNode(), Constants.appletonTower.toNode()));
 
-        collectMoves(completePlan, target);
+        collectMoves(target);
         collectFlightpaths(target,order);
     }
 
-    private void collectFlightpaths(Node target, int order) {
+    /**
+     * This function takes a Node and returns a list of nodes
+     * where each node contains the LongLat position and the angle
+     * the drone was facing at the time
+     *
+     *
+     * @param path
+     * @return ArrayList of nodes
+     */
+
+    private ArrayList<Node> nodeToList(Node path){
+        ArrayList<Node> nodes = new ArrayList<>();
+        nodes.add(path);
+        while (path.parent != null){
+            path = path.parent;
+            nodes.add(path);
+        }
+
+        Collections.reverse(nodes);
+        return nodes;
+    }
+
+    /**
+     * This function collects all the moves done by the drone between 2 point
+     * and gets the flight paths for it, it even handles the hovering case
+     * and fills the completeFlightpath List
+     *
+     * This function uses the LongLats and Angle saved during Astar
+     * for the flight paths
+     *
+     * @param path A node containing the path between 2 points
+     * @param order the corresponding position of an order in the journey
+     */
+
+    private void collectFlightpaths(Node path, int order) {
         ArrayList<Flightpath> flightpaths = new ArrayList<>();
 
-        ArrayList<Node> nodes = nodeToList(target);
+        ArrayList<Node> nodes = nodeToList(path);
         for(int i=0; i< nodes.size()-1; i++){
             Flightpath flightpath = new Flightpath();
             flightpath.setFromLatitude(nodes.get(i).getLatitude());
@@ -174,29 +277,50 @@ public class Drone {
         }
     }
 
-    private void collectMoves(ArrayList<LongLat> completePlan, Node pathNode) {
-        ArrayList<Node> path = nodeToList(pathNode);
+    /**
+     * This function uses the list of Nodes, and gets the LongLat of each
+     * node and adds them to the completePlan to be used.
+     * This function also calculates the MOVES done in each path between
+     * 2 stops, and subtracts an extra move for the Hover
+     *
+     * @param path
+     */
 
-        for (int k = 0; k < path.size(); k++) {
-            completePlan.add(path.get(k).toLongLat());
+    private void collectMoves(Node path) {
+        ArrayList<Node> nodes = nodeToList(path);
+
+        for (int k = 0; k < nodes.size(); k++) {
+            completePlan.add(nodes.get(k).toLongLat());
         }
-        MOVES -= path.size() +1; // +1 for hover move
+        MOVES -= nodes.size() +1; // +1 for hover move
     }
 
-    private FeatureCollection toFeatureCollection(ArrayList<LongLat> routes){
-        ArrayList<Point> points = new ArrayList<>();
-        for(LongLat route: routes){
+    //------------------------------------
 
-            points.add(Point.fromLngLat(route.getLongitude(), route.getLatitude()));
+
+    /**
+     * A helper function that changes the moves done by the drone to
+     * a FeatureCollection that contains only one linestring that contains
+     * all the points from the moves
+     * @param moves ArrayList of LongLat that contains all the moves done by drone
+     * @return FeatureCollection with one LineString
+     */
+    private FeatureCollection toFeatureCollection(ArrayList<LongLat> moves){
+        ArrayList<Point> points = new ArrayList<>();
+
+        for(LongLat move: moves){
+            points.add(Point.fromLngLat(move.getLongitude(), move.getLatitude()));
         }
+
         var featureLineString =  Feature.fromGeometry(LineString.fromLngLats(points));
         return FeatureCollection.fromFeature(featureLineString);
     }
 
 
-    public ArrayList<Flightpath> flightpathsDataForDatabase(){
-        return completeFlightpath;
-    }
+    /**
+     * This function calculated the sampled average percentage monetary value
+     * @return sampled average percentage monetary value
+     */
 
     public double percentageMoney (){
         HashMap<String, OrderDetails> orderItems = DatabaseIO.getOrderDetails();
@@ -206,23 +330,13 @@ public class Drone {
         for (String order: DatabaseIO.getOrderIds()){
             allOrders+= Menus.getDeliveryCost(orderItems.get(order).getItems());
         }
-        getPlan();
+        executePlan();
         for (String order: journey){
             actualDelivered+= Menus.getDeliveryCost(orderItems.get(order).getItems());
         }
         return (actualDelivered/allOrders)*100;
     }
 
-    private ArrayList<Node> nodeToList(Node path){
-        ArrayList<Node> nodes = new ArrayList<>();
-        nodes.add(path);
-        while (path.parent != null){
-            path = path.parent;
-            nodes.add(path);
-        }
 
-        Collections.reverse(nodes);
-        return nodes;
-    }
 
 }
