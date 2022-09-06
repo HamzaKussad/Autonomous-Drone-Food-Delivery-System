@@ -2,7 +2,6 @@ package uk.ac.ed.inf;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.net.URI;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -13,97 +12,119 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Class that represents all Menus
+ * Class that represents all Menus and extends
+ * from the ServerClient
  */
 
-public class Menus {
-
-    public String name;
-    public String port;
-
-    /** creates client to be used in class*/
-    private static final HttpClient client = HttpClient.newHttpClient();
-    /** Hashmap used to store all Menu items*/
-    private HashMap<String, Menu> menus = new HashMap<>();
+public class Menus extends ServerClient {
 
     /**
-     * Creates a Menus instant
+     * Creates a Menus instant and uses the doGetRequest function from
+     * the serverClient to fill up the responseRestaurants from the data
+     * in the server
      * @param name
      * @param port
      */
     public Menus(String name, String port) {
-        this.name = name;
-        this.port = port;
-
-    }
-
-    /**
-     * Function that gets the cost of each item
-     * depending on the strings given in the input
-     * @param strings
-     * @return
-     */
-
-    public int getDeliveryCost(String... strings) {
-        storeItemsInHashmap();
-        int price = 0;
-        for(String restaurant: strings){
-            price += menus.get(restaurant).getPence();
-        }
-        return price + Constants.DELIVERY_COST;
-    }
-
-
-
-    //------Helper Functions
-
-    /**
-     * Helper function to fill up the Hashmap "menu"
-     * from all the menus from all different restaurants
-     */
-    private void storeItemsInHashmap() {
-        List<Restaurant> responseRestaurants = getRestaurants();
-        for (Restaurant restaurant: responseRestaurants){
-            for (Menu menu : restaurant.getMenu()){
-                menus.put(menu.getItem(), menu);
-            }
-        }
-    }
-
-    /**
-     * Helper function to parse json string into java object
-     * after getting the http response
-     * @return
-     */
-    private List<Restaurant> getRestaurants()  {
-        List<Restaurant> responseRestaurants = new ArrayList<>() {};
+        super(name,port);
+        String endpoint = "/menus/menus.json";
         try{
-            HttpResponse<String> response = doGetRequest(this.name,this.port);
+            HttpResponse<String> response = doGetRequest(this.name,this.port,endpoint);
             Type listType = new TypeToken<List<Restaurant>>() {} .getType();
             responseRestaurants = new Gson().fromJson(response.body(), listType);
 
         }catch (IOException | InterruptedException e){
             e.printStackTrace();
         }
-        return responseRestaurants;
+
     }
 
     /**
-     * Helper function for http request to access the
-     * json file from the webserver and store it
-     * in a responce
-     * @param name of website
-     * @param port of website
-     * @return http response
-     * @throws IOException
-     * @throws InterruptedException
+     * A WordsW3W instance to be able to get the LongLat of a W3W location
      */
 
-    private HttpResponse<String> doGetRequest(String name, String port) throws IOException, InterruptedException {
-        String endpoint = "/menus/menus.json";
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://" + name + ":" + port+ endpoint )).build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        return response;
+    WordsW3W wordsW3W = new WordsW3W(name,port);
+
+    /**
+     *  this stores the list restaurants as obtained from the webserver using
+     *  a Restaurant Object
+     */
+    private static List<Restaurant> responseRestaurants = new ArrayList<>() {};
+
+    /**
+     * this instance stores all the items in all the menus by name as key, and
+     * the Menu Object as value
+     */
+    private static HashMap<String, Menu> menuItems = new HashMap<>();
+
+
+    /**
+     * A function to fill up the Hashmap "menuItems"
+     * from all the menus from all different restaurants
+     */
+    public void storeItems() {
+        for (Restaurant restaurant: responseRestaurants){
+            restaurant.setLongLatLocation(wordsW3W.getLongLatFrom3Words(restaurant.getW3WLocation()));
+            for (Menu menu : restaurant.getMenu()){
+                menuItems.put(menu.getItem(), menu);
+            }
+        }
     }
+
+    /**
+     * A static function that can be called to obtain the LongLat location
+     * of a specific item in the menu
+     * @param item item name
+     * @return location of the restaurant that serves this item in LongLat
+     */
+
+    public static LongLat getLocationOfMenuItem(String item){
+        for (Restaurant restaurant: responseRestaurants){
+            for (Menu menu : restaurant.getMenu()){
+                if (menu.getItem().equals(item)){
+                    return restaurant.getLongLatLocation();
+                }
+
+            }
+        }
+        return null;
+    }
+
+    /**
+     * A static function that can be called to obtain the W3W location
+     * of a specific item in the menu
+     * @param item item name
+     * @return location of the restaurant that serves this item in W3w
+     */
+
+    public static String getW3WOfMenuItem(String item){
+        for (Restaurant restaurant: responseRestaurants){
+            for (Menu menu : restaurant.getMenu()){
+                if (menu.getItem().equals(item)){
+                    return restaurant.getW3WLocation();
+                }
+
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Function that gets the cost of each item
+     * depending on the strings given in the input
+     * @param strings List of strings
+     * @return the price of an order
+     */
+
+    public static int getDeliveryCost(ArrayList<String> strings) {
+
+        int price = 0;
+        for(String restaurant: strings){
+            price += menuItems.get(restaurant).getPence();
+        }
+        return price + Constants.DELIVERY_COST;
+    }
+
+
 
 }

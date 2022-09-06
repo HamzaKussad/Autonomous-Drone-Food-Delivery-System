@@ -1,18 +1,21 @@
 package uk.ac.ed.inf;
 
+import java.awt.geom.Line2D;
+
 /**
  * Class that represent a point on the map
  * using Latitude and Longitude
  */
 public class LongLat {
-    public double longitude;
-    public double latitude;
+    private double longitude;
+    private double latitude;
 
     /**
      * Creates a LongLat instance
      * @param longitude longitude
      * @param latitude latitude
      */
+
     public LongLat(double longitude, double latitude){
         this.longitude = longitude;
         this.latitude = latitude;
@@ -31,6 +34,7 @@ public class LongLat {
         }
         return false;
     }
+    
 
     /**
      * gets the Pythagorean distance between the point
@@ -42,6 +46,34 @@ public class LongLat {
     public double distanceTo(LongLat location) {
         return getPythagoreanDist(location);
     }
+
+    /**
+     * A type of Heuristic used in my Astar algorithm
+     * It calculates the Manhattan distance between
+     * the point and a different location
+     * @param location location of a different point coordinate
+     * @return the chebyshev distance
+     */
+
+    public double manhattanDist(LongLat location){
+        var dx = Math.abs(this.latitude - location.latitude);
+        var dy = Math.abs(this.longitude - location.longitude);
+        return dx + dy;
+    }
+
+    /**
+     * A type of Heuristic used in my Astar algorithm
+     * It calculates the Manhattan distance + the maximum distance
+     * between horizontal distance and Vertical distance
+     * @param location location of a different point coordinate
+     * @return the chebyshev distance
+     */
+    public double chebyshevDist(LongLat location){
+        var dx = Math.abs(this.latitude - location.latitude);
+        var dy = Math.abs(this.longitude - location.longitude);
+        return (dx+dy) + 1.97*Math.max(dy,dx);
+    }
+
 
     /**
      * Checks if a location is (close to) within a move from the
@@ -94,6 +126,22 @@ public class LongLat {
         return nextMove;
     }
 
+    /**
+     * Function that changes a LongLat to a Node to be used in the Pathfinder (Astar)
+     * algorithm
+     * @return Node object
+     */
+    public Node toNode(){
+        return new Node(this.longitude,this.latitude);
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
     //Helper functions
 
     /**

@@ -19,4 +19,6 @@ public class Constants {
     public static final int DELIVERY_COST = 50;
     /** The constant used to indicate that the drone is "hovering"*/
     public static final int HOVERING_DRONE_VALUE = -999;
+    /** LongLat location of appleton tower */
+    public static final LongLat appletonTower = new LongLat(-3.186874,55.944494);
 }
